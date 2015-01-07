@@ -3,22 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
-namespace ChessEngine
+namespace ChessEngine.CommandLine
 {
     class Program
     {
         private static readonly BackgroundWorker _bwReadInput = new BackgroundWorker();
         private static readonly Winboard _winboard = new Winboard();
+        private static Boolean _running = true;
 
         static void Main(string[] args)
         {
+            Console.WriteLine("ChessEngine v{0}.{1} by Kasper Wind, Denmark", typeof(Program).Assembly.GetName().Version.Major, typeof(Program).Assembly.GetName().Version.Minor);
+
+            _bwReadInput.DoWork += new DoWorkEventHandler(_bwReadInput_DoWork);
+            _bwReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_bwReadInput_CompletedWork);
+            _bwReadInput.RunWorkerAsync();
+
+            while (_running)
+            {
+                System.Threading.Thread.Sleep(500);
+            }
+        }
+
+        private static void _bwReadInput_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try{
+                while(true){
+                    string input = Console.ReadLine();
+                    Boolean playing = ProcessInput(input);
+                    Console.WriteLine("playing");
+                    if(!playing){
+                        break;
+                    }
+                }
+            }catch(Exception ex){
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private static void _bwReadInput_CompletedWork(object sender, RunWorkerCompletedEventArgs e)
+        {
+            _running = false;
         }
 
         public static bool ProcessInput(string input)
         {
             string[] split = input.Split(' ');
             string primaryCommand = split[0].ToLowerInvariant();
+            /*
             switch (primaryCommand)
             {
                 case "quit":
@@ -99,10 +133,11 @@ namespace ChessEngine
                         ConsoleWriteline(string.Format("TotalTime:{0}/{1}", totalTime, possibleTime));
                     }
                     break;
-                default:
+                default:*/
                     _winboard.ProcessCmd(input);
-                    break;
-            }
+            /*        
+            break;
+            }*/
             return true;
         }
     }

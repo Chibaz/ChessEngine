@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chess
+namespace ChessEngine.Engine
 {
     public class MoveGenerator
     {

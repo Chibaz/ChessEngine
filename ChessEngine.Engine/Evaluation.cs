@@ -1,7 +1,6 @@
 ﻿using System;
-using Chess;
 
-namespace Chess
+namespace ChessEngine.Engine
 {
     internal class Evaluation
     {
@@ -61,14 +60,14 @@ namespace Chess
                 sTable = new ScorePlayer();
             }
             //var pieces = 0;
-            var score = 0; 
+            var score = 0;
             for (var row = 0; row < _eBoard.GetLength(0); row++)
             {
                 for (var col = 0; col < _eBoard.GetLength(0); col++)
                 {
                     var thisPiece = _eBoard[row, col];
                     //pieces += ScoreTable.PieceValue(thisPiece);
-                    switch (thisPiece*player)
+                    switch (thisPiece * player)
                     {
                         case 1:
                             score += sTable.Pawn[row, col];
@@ -128,8 +127,8 @@ namespace Chess
                     var piece = _eBoard[row, col];
                     //if (piece * player > 0) continue;
                     //pieces = ScoreTable.PieceValue(piece*player);
-                    
-                    switch (piece*player)
+
+                    switch (piece * player)
                     {
                         case 1:
                             pieces += 100;
@@ -155,14 +154,14 @@ namespace Chess
         public static int EvaluateBonus(IMove move, int depth)
         {
             if (!(move is Move)) return 0;
-            var m = (Move) move;
+            var m = (Move)move;
             if (m.Killing.Piece != 0 && m.Killing.Position != null)
             {
                 /*
                     Console.WriteLine("at depth " + depth + " applied bonus/penalty");
                     Console.WriteLine("for " + m.Moving.Piece + " taking " + m.Killing.Piece + "\n");
                      * */
-                return ScoreTable.PieceValue(m.Killing.Piece)/10*depth;
+                return ScoreTable.PieceValue(m.Killing.Piece) / 10 * depth;
             }
             return 0;
         }
@@ -326,7 +325,6 @@ namespace Chess
                 return Evaluation._endgame ? _endKing : _king;
             }
         }
-        }
     }
 
     internal class ScorePlayer : ScoreTable
@@ -354,7 +352,7 @@ namespace Chess
             {4, 6, 7, 9, 9, 7, 6, 4},
             {9, 9, 11, 10, 11, 9, 9, 9}
         };
-        
+
         private readonly int[,] _knight =
         {
             {-7, -5, -4, -2, -2, -4, -5, -7},
@@ -444,7 +442,8 @@ namespace Chess
         {
             get
             {
-                                return Evaluation._endgame ? _endKing : _king;
+                return Evaluation._endgame ? _endKing : _king;
             }
         }
     }
+}

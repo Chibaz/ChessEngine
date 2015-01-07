@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Chess
+namespace ChessEngine.Engine
 {
 
     public class Logic
@@ -25,7 +25,7 @@ namespace Chess
 
         public int getDepth() { return Depth; }
 
-        public void GetBestMove()
+        public IMove GetBestMove()
         {
             Console.WriteLine("performing best move");
             _evals = score = _total = 0;
@@ -39,7 +39,7 @@ namespace Chess
         }*/
             time.Stop();
             Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
-            _next.Execute();
+            return _next;
         }
 
         public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, Move prioMove, int bonus)

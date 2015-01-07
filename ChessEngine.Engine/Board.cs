@@ -3,7 +3,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Chess
+namespace ChessEngine.Engine
 {
     /*
      * Board is based on a 2-dimensional array of ints, pieces are defined as:
@@ -50,7 +50,6 @@ namespace Chess
                 }
             }
         }
-
 
         //Used for getting which piece will be at the a specified tile at the start of a game
         public int GetStartPiece(int h, int w)
@@ -100,6 +99,13 @@ namespace Chess
             }
             return piece;
         }
+
+        /*
+        public int GetSpecificTile(char file, int rank)
+        {
+            string tile = "0x" + file + rank;
+            return tiles[tile];
+        }*/
 
         public int GetSpecificTile(int[] tile)
         {

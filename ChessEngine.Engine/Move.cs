@@ -1,4 +1,4 @@
-﻿namespace Chess
+﻿namespace ChessEngine.Engine
 {
     public interface IMove
     {
@@ -79,6 +79,26 @@
             {
                 Board.Game.tiles[Killing.Position[0], Killing.Position[1]] = Killing.Piece;
             }
+        }
+
+        public string GetOrigin()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public object GetKill()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string GetTarget()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool IsCheck()
+        {
+            throw new System.NotImplementedException();
         }
 
         /*
@@ -188,6 +208,12 @@
         public void Undo()
         {
 
+        }
+
+
+        public string GetSide()
+        {
+            throw new System.NotImplementedException();
         }
         /*
         private int[] origin;
