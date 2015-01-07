@@ -1,4 +1,6 @@
-﻿namespace ChessEngine.Engine
+﻿using System;
+
+namespace ChessEngine.Engine
 {
     public interface IMove
     {
@@ -33,6 +35,37 @@
         }
     }
 
+    public class UserMove : IMove
+    {
+        private string _origin;
+        private string _target;
+
+        public UserMove(string origin, string target)
+        {
+            _origin = origin;
+            _target = target;
+        }
+
+        public void Execute()
+        {
+            /*
+            int piece = Board.Game.tiles[int.Parse(_origin)];
+            Board.Game.tiles[int.Parse(_origin)] = 0;
+            Board.Game.tiles[int.Parse(_target)] = piece;
+            */
+        }
+
+        public void ExecuteOnBoard(Board temp)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Undo()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class Move : IMove
     {
         public MovingPiece Moving;
@@ -55,7 +88,7 @@
             Board.Game.tiles[Moving.Target[0], Moving.Target[1]] = Moving.Piece;
             Board.Game.tiles[Moving.Origin[0], Moving.Origin[1]] = 0;
             //Board.CheckForCheck(Board.Game);
-            Board.Game.CheckChecking(Board.Game/*, (Moving.Piece / Math.Abs(Moving.Piece))*-1*/);
+            Board.Game.CheckChecking(Board.Game);
         }
 
         public void ExecuteOnBoard(Board temp)
@@ -68,7 +101,7 @@
             temp.tiles[Moving.Target[0], Moving.Target[1]] = Moving.Piece;
             temp.tiles[Moving.Origin[0], Moving.Origin[1]] = 0;
             //Board.CheckForCheck(temp);
-            Board.Game.CheckChecking(temp/*, (Moving.Piece / Math.Abs(Moving.Piece))*-1*/);
+            Board.Game.CheckChecking(temp);
         }
 
         public void Undo()
@@ -100,49 +133,6 @@
         {
             throw new System.NotImplementedException();
         }
-
-        /*
-        private int[] origin;
-        public int[] Origin { get { return origin; } }
-        private int[] target;
-        public int[] Target { get { return target; } set { target = value; } }
-        private int toMove;
-        public int ToMove { get { return toMove; } set { toMove = value; } }
-        private int toKill;
-        public int ToKill { get { return toKill; } set { toKill = value; } }
-
-        public Move(int[] origin)
-        {
-            this.origin = origin;
-            toMove = Board.Game.Tiles[origin[0], origin[1]];
-        }
-
-        public void Execute()
-        {
-            int[,] tiles = Board.Game.Tiles;
-            toKill = tiles[target[0], target[1]];
-            tiles[target[0], target[1]] = toMove;
-            tiles[origin[0], origin[1]] = 0;
-        }
-        
-        public void ExecuteOnBoard(Board temp)
-        {
-            int[,] tiles = temp.Tiles;
-            if (toKill != null)
-            {
-                //tiles[toKill[0], toKill[1]] = 0;
-            }
-            tiles[target[0], target[1]] = toMove;
-            tiles[origin[0], origin[1]] = 0;
-        }
-
-        public void Undo()
-        {
-            int[,] tiles = Board.Game.Tiles;
-            tiles[target[0], target[1]] = toKill;
-            tiles[origin[0], origin[1]] = toMove;
-        }
-        */
     }
 
     public class Castling : IMove

@@ -100,12 +100,12 @@ namespace ChessEngine.Engine
             return piece;
         }
 
-        /*
-        public int GetSpecificTile(char file, int rank)
+        
+        public int GetSpecificTileBoard(char file, int rank)
         {
             string tile = "0x" + file + rank;
-            return tiles[tile];
-        }*/
+            return tiles[int.Parse(tile),0];
+        }
 
         public int GetSpecificTile(int[] tile)
         {

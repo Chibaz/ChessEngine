@@ -149,7 +149,9 @@ namespace ChessEngine.CommandLine
             }
             else
             {
-                //move = new Move();
+                
+                move = new UserMove(input.Substring(0,2), input.Substring(2,2));
+
             }
             return null;
         }

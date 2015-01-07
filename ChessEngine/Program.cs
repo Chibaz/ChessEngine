@@ -9,17 +9,17 @@ namespace ChessEngine.CommandLine
 {
     class Program
     {
-        private static readonly BackgroundWorker _bwReadInput = new BackgroundWorker();
-        private static readonly Winboard _winboard = new Winboard();
+        private static readonly BackgroundWorker ReadInput = new BackgroundWorker();
+        private static readonly Winboard Winboard = new Winboard();
         private static Boolean _running = true;
 
         static void Main(string[] args)
         {
             Console.WriteLine("ChessEngine v{0}.{1} by Kasper Wind, Denmark", typeof(Program).Assembly.GetName().Version.Major, typeof(Program).Assembly.GetName().Version.Minor);
 
-            _bwReadInput.DoWork += new DoWorkEventHandler(_bwReadInput_DoWork);
-            _bwReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_bwReadInput_CompletedWork);
-            _bwReadInput.RunWorkerAsync();
+            ReadInput.DoWork += new DoWorkEventHandler(_bwReadInput_DoWork);
+            ReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_bwReadInput_CompletedWork);
+            ReadInput.RunWorkerAsync();
 
             while (_running)
             {
@@ -33,7 +33,6 @@ namespace ChessEngine.CommandLine
                 while(true){
                     string input = Console.ReadLine();
                     Boolean playing = ProcessInput(input);
-                    Console.WriteLine("playing");
                     if(!playing){
                         break;
                     }
@@ -134,7 +133,7 @@ namespace ChessEngine.CommandLine
                     }
                     break;
                 default:*/
-                    _winboard.ProcessCmd(input);
+                    Winboard.ProcessCmd(input);
             /*        
             break;
             }*/
