@@ -25,12 +25,14 @@ namespace ChessEngine.Engine
         public int[] EnPassant;
         public Boolean aiLeftCastling, aiRightCastling, playerLeftCastling, playerRightCastling;
         public Boolean aiCheck, playerCheck;
-        public int[,] tiles;
+        //public int[,] tiles;
+        public short[] tiles;
         public int mate;
 
         public Board()
         {
-            tiles = new int[8, 8];
+            //tiles = new int[8, 8];
+            tiles = new short[128];
             aiLeftCastling = aiRightCastling = playerLeftCastling = playerRightCastling = true;
             aiCheck = playerCheck = false;
             mate = 0;
@@ -42,75 +44,67 @@ namespace ChessEngine.Engine
             aiLeftCastling = aiRightCastling = playerLeftCastling = playerRightCastling = true;
             aiCheck = playerCheck = false;
             mate = 0;
-            for (var h = 0; h < 8; h++)
+            for(int h = 0; h < 8; h++) 
             {
-                for (var w = 0; w < 8; w++)
+                for (int w = 0; w < 8; w++)
                 {
-                    tiles[h, w] = GetStartPiece(h, w);
+                    //tiles[h, w] = GetStartPiece(h, w);
+                    tiles[16 * h + w] = GetStartPiece(h, w);
                 }
             }
         }
 
         //Used for getting which piece will be at the a specified tile at the start of a game
-        public int GetStartPiece(int h, int w)
+        public short GetStartPiece(int h, int w)
         {
-            var piece = 0;
+            short piece = 0;
 
             //Gets which piece is supposed to be at what position
             if (h == 1 || h == 6)
             {
-                piece = 1;
+                piece = 0x01;
             }
-            else if (w == 0 || w == 7)
+            else
             {
-                piece = 2;
-            }
-            else if (w == 1 || w == 6)
-            {
-                piece = 3;
-            }
-            else if (w == 2 || w == 5)
-            {
-                piece = 4;
-            }
-            else if (w == 3)
-            {
-                piece = 5;
-            }
-            else if (w == 4)
-            {
-                piece = 6;
+                switch (w)
+                {
+                    case 0: case 7:
+                        piece = 0x06;
+                        break;
+                    case 1: case 6:
+                        piece = 0x02;
+                        break;
+                    case 2: case 5:
+                        piece = 0x05;
+                        break;
+                    case 3:
+                        piece = 0x07;
+                        break;
+                    case 4:
+                        piece = 0x03;
+                        break;
+                }
             }
 
-            //Sets the correct color of the pieces
-            switch (h)
+            if (h == 6 || h == 7)
             {
-                case 1:
-                case 0:
-                    piece = piece * -aiColor;
-                    break;
-                case 6:
-                case 7:
-                    piece = piece * aiColor;
-                    break;
-                default:
-                    piece = 0;
-                    break;
+                piece += 0x08;
             }
+
             return piece;
         }
 
         
-        public int GetSpecificTileBoard(char file, int rank)
+        public short GetSpecificTile(int rank, int file)
         {
-            string tile = "0x" + file + rank;
-            return tiles[int.Parse(tile),0];
+            return tiles[16 * rank + file];
         }
 
+        /*
         public int GetSpecificTile(int[] tile)
         {
             return tiles[tile[0], tile[1]];
-        }
+        }*/
 
         public Board CloneBoard()
         {
@@ -119,7 +113,7 @@ namespace ChessEngine.Engine
             {
                 for (var w = 0; w < 8; w++)
                 {
-                    newBoard.tiles[h, w] = this.tiles[h, w];
+                    newBoard.tiles[16 * h + w] = GetSpecificTile(h, w);
                 }
             }
             newBoard.mate = this.mate;
@@ -132,11 +126,14 @@ namespace ChessEngine.Engine
             return newBoard;
         }
 
+        
+
         /*
          * Check if specified player is in check
          * By checking if any moves of the opposing player can take the king
          * Should save all moves that puts the player in check in order to check for mate
          */
+        /*
         public static Boolean CheckForCheck(Board board, int player, int[] king)
         {
             var mg = new MoveGenerator();
@@ -163,13 +160,14 @@ namespace ChessEngine.Engine
                     board.playerCheck = true;
                     Console.WriteLine("player in check");
                 }
-            }*/
+            }
         }
 
         /*
          * Check if specified player has been set in mate
          * Should function by checking if any moves of the player makes the king not in check
          */
+        /*
         public static Boolean CheckForMate(Board board, int player, int[] king)
         {
             var mg = new MoveGenerator();
@@ -206,20 +204,12 @@ namespace ChessEngine.Engine
                     }
                 }
             });
-            /*if (board.aiCheck && aiKing != null)
-            {
-                CheckForMate(board, Board.aiColor, aiKing);
-            }
-            else*/if (aiKing != null)
+            if (aiKing != null)
             {
                 board.aiCheck = false;
                 CheckForCheck(board, aiColor, aiKing);
             }
-            /*if (board.playerCheck && playerKing != null)
-            {
-                CheckForMate(board, -Board.aiColor, playerKing);
-            }
-            else*/ if (playerKing != null)
+            if (playerKing != null)
             {
                 board.playerCheck = false;
                 CheckForCheck(board, -aiColor, playerKing);
@@ -230,7 +220,7 @@ namespace ChessEngine.Engine
         {
 
         }
-
+        */
         public static void CheckForStuff(Board board, IMove pMove)
         {
             if (!(pMove is Move)) return;

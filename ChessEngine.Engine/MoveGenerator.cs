@@ -22,9 +22,9 @@ namespace ChessEngine.Engine
             {
                 for (int w = 0; w < 8; w++)
                 {
-                    if (Board.Game.tiles[h, w] * player > 0)
+                    if (Board.Game.tiles[16 * h + w] * player > 0)
                     {
-                        allMoves.AddRange(GetLegalMovements(new int[] { h, w }));
+                        allMoves.AddRange(GetLegalMovements((short)(h + w)));
                     }
                 }
             }
@@ -32,10 +32,10 @@ namespace ChessEngine.Engine
             return allMoves;
         }
 
-        public List<IMove> GetLegalMovements(int[] origin)
+        public List<IMove> GetLegalMovements(short origin)
         {
             var moves = new List<IMove>();
-            var piece = Math.Abs(_moveBoard.tiles[origin[0], origin[1]]);
+            var piece = Math.Abs(_moveBoard.tiles[origin]);
 
             if (piece == 1)
             {
@@ -56,85 +56,123 @@ namespace ChessEngine.Engine
             return moves;
         }
 
-        public List<IMove> GetStraightMoves(int[] origin)
+        public List<IMove> GetStraightMoves(short origin)
         {
             Move newMove;
-            var straightMoves = new List<IMove>();
-            for (var y = origin[0] + 1; y < 8; y++) //Vertical lower
+            List<IMove> straightMoves = new List<IMove>();
+            short lower, upper, left, right;
+            lower = upper = left = right = 0x00;
+            for (int v = 1; v < 8; v++)
             {
-                newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]])
+                lower = upper = left = right = 0x00;
+                //Lower
+                lower = (short) (v + (0x07 & origin));
+                if ((0x88 & lower) == 0)
                 {
-                    Moving = {Target = new[] {y, origin[1]}}
-                };
-                if (_moveBoard.tiles[newMove.Moving.Target[0], newMove.Moving.Target[1]] == 0)
-                {
+                    newMove = new Move(lower, _moveBoard.tiles[lower]);
                     straightMoves.Add(newMove);
                 }
-                else
+                //Upper
+                upper = (short)(-v + (0x07 & origin));
+                if ((0x88 & upper) == 0)
                 {
-                    if (CheckForKill(newMove))
-                    {
-                        straightMoves.Add(newMove);
-                    }
-                    break;
-                }
-            }
-            for (var y = origin[0] - 1; y >= 0; y--) //Vertical upper
-            {
-                newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-                var target = new[] { y, origin[1] };
-                newMove.Moving.Target = target;
-                if (_moveBoard.tiles[target[0], target[1]] == 0)
-                {
+                    newMove = new Move(upper, _moveBoard.tiles[upper]);
                     straightMoves.Add(newMove);
                 }
-                else
+                //Left
+                left = (short)((0x70 & origin) + v);
+                if ((0x88 & left) == 0)
                 {
-                    if (CheckForKill(newMove))
-                    {
-                        straightMoves.Add(newMove);
-                    }
-                    break;
-                }
-            }
-            for (var x = origin[1] + 1; x < 8; x++) //Horizontal right
-            {
-                newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-                var target = new[] { origin[0], x };
-                newMove.Moving.Target = target;
-                if (_moveBoard.tiles[target[0], target[1]] == 0)
-                {
+                    newMove = new Move(left, _moveBoard.tiles[left]);
                     straightMoves.Add(newMove);
                 }
-                else
+                //Right
+                right = (short)((0x70 & origin) + (-v));
+                if ((0x88 & right) == 0)
                 {
-                    if (CheckForKill(newMove))
-                    {
-                        straightMoves.Add(newMove);
-                    }
-                    break;
-                }
-            }
-            for (var x = origin[1] - 1; x >= 0; x--) //Horizontal left
-            {
-                newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-                var target = new[] { origin[0], x };
-                newMove.Moving.Target = target;
-                if (_moveBoard.tiles[target[0], target[1]] == 0)
-                {
+                    newMove = new Move(right, _moveBoard.tiles[left]);
                     straightMoves.Add(newMove);
                 }
-                else
-                {
-                    if (CheckForKill(newMove))
-                    {
-                        straightMoves.Add(newMove);
-                    }
-                    break;
-                }
             }
-            return straightMoves;
-        }
+        //    do
+        //    {
+        //    } while ((target & 0x88) == 0);
+
+        //    for (var y = origin[0] + 1; y < 8; y++) //Vertical lower
+        //    {
+        //        newMove = new Move(origin, _moveBoard.GetSpecificTile())
+        //        {
+        //            Moving = { Target = new[] { y, origin[1] } }
+        //        };
+        //        if (_moveBoard.tiles[newMove.Moving.Target[0], newMove.Moving.Target[1]] == 0)
+        //        {
+        //            straightMoves.Add(newMove);
+        //        }
+        //        else
+        //        {
+        //            if (CheckForKill(newMove))
+        //            {
+        //                straightMoves.Add(newMove);
+        //            }
+        //            break;
+        //        }
+        //    }
+        //    for (var y = origin[0] - 1; y >= 0; y--) //Vertical upper
+        //    {
+        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
+        //        var target = new[] { y, origin[1] };
+        //        newMove.Moving.Target = target;
+        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
+        //        {
+        //            straightMoves.Add(newMove);
+        //        }
+        //        else
+        //        {
+        //            if (CheckForKill(newMove))
+        //            {
+        //                straightMoves.Add(newMove);
+        //            }
+        //            break;
+        //        }
+        //    }
+        //    for (var x = origin[1] + 1; x < 8; x++) //Horizontal right
+        //    {
+        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
+        //        var target = new[] { origin[0], x };
+        //        newMove.Moving.Target = target;
+        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
+        //        {
+        //            straightMoves.Add(newMove);
+        //        }
+        //        else
+        //        {
+        //            if (CheckForKill(newMove))
+        //            {
+        //                straightMoves.Add(newMove);
+        //            }
+        //            break;
+        //        }
+        //    }
+        //    for (var x = origin[1] - 1; x >= 0; x--) //Horizontal left
+        //    {
+        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
+        //        var target = new[] { origin[0], x };
+        //        newMove.Moving.Target = target;
+        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
+        //        {
+        //            straightMoves.Add(newMove);
+        //        }
+        //        else
+        //        {
+        //            if (CheckForKill(newMove))
+        //            {
+        //                straightMoves.Add(newMove);
+        //            }
+        //            break;
+        //        }
+        //    }
+        //    return straightMoves;
+        //}
 
         public List<IMove> GetDiagonalMoves(int[] origin)
         {
