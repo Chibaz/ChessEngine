@@ -26,13 +26,13 @@ namespace ChessEngine.Engine
         public Boolean aiLeftCastling, aiRightCastling, playerLeftCastling, playerRightCastling;
         public Boolean aiCheck, playerCheck;
         //public int[,] tiles;
-        public short[] tiles;
+        public byte[] tiles;
         public int mate;
 
         public Board()
         {
             //tiles = new int[8, 8];
-            tiles = new short[128];
+            tiles = new byte[128];
             aiLeftCastling = aiRightCastling = playerLeftCastling = playerRightCastling = true;
             aiCheck = playerCheck = false;
             mate = 0;
@@ -55,9 +55,9 @@ namespace ChessEngine.Engine
         }
 
         //Used for getting which piece will be at the a specified tile at the start of a game
-        public short GetStartPiece(int h, int w)
+        public byte GetStartPiece(int h, int w)
         {
-            short piece = 0;
+            byte piece = 0;
 
             //Gets which piece is supposed to be at what position
             if (h == 1 || h == 6)
@@ -95,7 +95,7 @@ namespace ChessEngine.Engine
         }
 
         
-        public short GetSpecificTile(int rank, int file)
+        public byte GetSpecificTile(int rank, int file)
         {
             return tiles[16 * rank + file];
         }
@@ -221,6 +221,7 @@ namespace ChessEngine.Engine
 
         }
         */
+        /*
         public static void CheckForStuff(Board board, IMove pMove)
         {
             if (!(pMove is Move)) return;
@@ -274,7 +275,7 @@ namespace ChessEngine.Engine
                 board.playerLeftCastling = false;
                 board.playerRightCastling = false;
             }
-        }
+        }*/
     }
 }
 

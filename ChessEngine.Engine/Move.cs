@@ -11,11 +11,11 @@ namespace ChessEngine.Engine
 
     public struct MovingPiece
     {
-        public int[] Origin;
-        public int[] Target;
+        public byte Origin;
+        public byte Target;
         public int Piece;
 
-        public MovingPiece(int[] origin, int[] target, int piece)
+        public MovingPiece(byte origin, byte target, int piece)
         {
             Origin = origin;
             Target = target;
@@ -25,10 +25,10 @@ namespace ChessEngine.Engine
 
     public struct TakenPiece
     {
-        public int[] Position;
+        public byte Position;
         public int Piece;
 
-        public TakenPiece(int[] position, int piece)
+        public TakenPiece(byte position, int piece)
         {
             Position = position;
             Piece = piece;
@@ -72,46 +72,50 @@ namespace ChessEngine.Engine
         public TakenPiece Killing;
         public Move Next;
 
-        public Move(int[] origin, int piece)
+        public byte origin;
+        public byte target;
+        public byte piece;
+
+        public Move(byte origin, byte piece)
         {
-            Moving = new MovingPiece(origin, null, piece);
-            Killing = new TakenPiece(null, 0);
+            this.origin = origin;
+            this.piece = piece;
         }
 
         public void Execute()
         {
-            Board.CheckForStuff(Board.Game, this);
+            //Board.CheckForStuff(Board.Game, this);
             if (Killing.Position != null)
             {
-                Board.Game.tiles[Killing.Position[0], Killing.Position[1]] = 0;
+                Board.Game.tiles[Killing.Position] = 0;
             }
-            Board.Game.tiles[Moving.Target[0], Moving.Target[1]] = Moving.Piece;
-            Board.Game.tiles[Moving.Origin[0], Moving.Origin[1]] = 0;
+            Board.Game.tiles[target] = piece;
+            Board.Game.tiles[origin] = 0;
             //Board.CheckForCheck(Board.Game);
-            Board.Game.CheckChecking(Board.Game);
+            //Board.Game.CheckChecking(Board.Game);
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            Board.CheckForStuff(temp, this);
+            //Board.CheckForStuff(temp, this);
             if (Killing.Position != null)
             {
-                temp.tiles[Killing.Position[0], Killing.Position[1]] = 0;
+                temp.tiles[Killing.Position] = 0;
             }
-            temp.tiles[Moving.Target[0], Moving.Target[1]] = Moving.Piece;
-            temp.tiles[Moving.Origin[0], Moving.Origin[1]] = 0;
+            temp.tiles[target] = piece;
+            temp.tiles[origin] = 0;
             //Board.CheckForCheck(temp);
-            Board.Game.CheckChecking(temp);
+            //Board.Game.CheckChecking(temp);
         }
 
         public void Undo()
         {
-            Board.Game.tiles[Moving.Origin[0], Moving.Origin[1]] = Moving.Piece;
-            Board.Game.tiles[Moving.Target[0], Moving.Target[1]] = 0;
-            if (Killing.Position != null)
-            {
-                Board.Game.tiles[Killing.Position[0], Killing.Position[1]] = Killing.Piece;
-            }
+//            Board.Game.tiles[Moving.Origin[0], Moving.Origin[1]] = Moving.Piece;
+//            Board.Game.tiles[Moving.Target[0], Moving.Target[1]] = 0;
+//            if (Killing.Position != null)
+//            {
+//                Board.Game.tiles[Killing.Position[0], Killing.Position[1]] = Killing.Piece;
+//            }
         }
 
         public string GetOrigin()
@@ -137,11 +141,11 @@ namespace ChessEngine.Engine
 
     public class Castling : IMove
     {
-        public int king;
+        public byte king;
         public int rookX;
         public int nK, nR;
 
-        public Castling(int k, int rX)
+        public Castling(byte k, int rX)
         {
             king = k;
             rookX = rX;
@@ -159,40 +163,40 @@ namespace ChessEngine.Engine
 
         public void Execute()
         {
-            int[,] tiles = Board.Game.tiles;
-            Board.CheckForStuff(Board.Game, this);
+            byte[] tiles = Board.Game.tiles;
+            //Board.CheckForStuff(Board.Game, this);
 
             if (king * Board.aiColor == 6)
             {
-                tiles[7, nR] = tiles[7, rookX];
-                tiles[7, nK] = king;
+                tiles[(byte)(7 + nR)] = tiles[(byte)(7 + rookX)];
+                tiles[(byte)(7 + nK)] = king;
             }
             else
             {
-                tiles[0, nR] = tiles[0, rookX];
-                tiles[0, nK] = king;
+                tiles[(byte)(0 + nR)] = tiles[(byte)(0 + rookX)];
+                tiles[(byte)(0 + nK)] = king;
             }
-            tiles[7, rookX] = 0;
-            tiles[7, 4] = 0;
+            tiles[(byte)(0 + rookX)] = 0;
+            tiles[(byte)(0 + 4)] = 0;
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            int[,] tiles = temp.tiles;
-            Board.CheckForStuff(temp, this);
+            byte[] tiles = temp.tiles;
+            //Board.CheckForStuff(temp, this);
 
-            if (king * Board.aiColor > 0)
+            if (king * Board.aiColor == 6)
             {
-                tiles[7, nR] = tiles[7, rookX];
-                tiles[7, nK] = king;
+                tiles[(byte)(7 + nR)] = tiles[(byte)(7 + rookX)];
+                tiles[(byte)(7 + nK)] = king;
             }
             else
             {
-                tiles[0, nR] = tiles[0, rookX];
-                tiles[0, nK] = king;
+                tiles[(byte)(0 + nR)] = tiles[(byte)(0 + rookX)];
+                tiles[(byte)(0 + nK)] = king;
             }
-            tiles[0, rookX] = 0;
-            tiles[0, 4] = 0;
+            tiles[(byte)(0 + rookX)] = 0;
+            tiles[(byte)(0 + 4)] = 0;
         }
 
         public void Undo()

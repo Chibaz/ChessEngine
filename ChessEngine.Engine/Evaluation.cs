@@ -4,7 +4,7 @@ namespace ChessEngine.Engine
 {
     internal class Evaluation
     {
-        private static int[,] _eBoard;
+        private static byte[] _eBoard;
         public static Boolean _endgame;
         private static int _losing;
 
@@ -61,48 +61,48 @@ namespace ChessEngine.Engine
             }
             //var pieces = 0;
             var score = 0;
-            for (var row = 0; row < _eBoard.GetLength(0); row++)
+            for (int rank = 0; rank < _eBoard.GetLength(0); rank++)
             {
-                for (var col = 0; col < _eBoard.GetLength(0); col++)
+                for (int file = 0; file < _eBoard.GetLength(0); file++)
                 {
-                    var thisPiece = _eBoard[row, col];
+                    byte thisPiece = _eBoard[(byte)(rank + file)];
                     //pieces += ScoreTable.PieceValue(thisPiece);
                     switch (thisPiece * player)
                     {
                         case 1:
-                            score += sTable.Pawn[row, col];
+                            score += sTable.Pawn[rank, file];
                             //pieces += 100;
                             break;
                         case 2:
                             if (_losing == 0)
                             {
-                                score += sTable.Rook[row, col];
+                                score += sTable.Rook[rank, file];
                             }
                             //pieces += 500;
                             break;
                         case 3:
                             if (_losing == 0)
                             {
-                                score += sTable.Knight[row, col];
+                                score += sTable.Knight[rank, file];
                             }
                             //pieces += 300;
                             break;
                         case 4:
                             if (_losing == 0)
                             {
-                                score += sTable.Bishop[row, col];
+                                score += sTable.Bishop[rank, file];
                             }
                             //pieces += 325;
                             break;
                         case 5:
                             if (_losing == 0)
                             {
-                                score += sTable.Queen[row, col];
+                                score += sTable.Queen[rank, file];
                             }
                             //pieces += 900;
                             break;
                         case 6:
-                            var kingScore = sTable.King[row, col];
+                            var kingScore = sTable.King[rank, file];
                             if (_losing == player)
                             {
                                 kingScore *= 8;
@@ -120,11 +120,11 @@ namespace ChessEngine.Engine
         public static int CalculatePieceScore(int player)
         {
             var pieces = 0;
-            for (var row = 0; row < _eBoard.GetLength(0); row++)
+            for (int rank = 0; rank < _eBoard.GetLength(0); rank++)
             {
-                for (var col = 0; col < _eBoard.GetLength(0); col++)
+                for (int file = 0; file < _eBoard.GetLength(0); file++)
                 {
-                    var piece = _eBoard[row, col];
+                    var piece = _eBoard[(byte)(rank + file)];
                     //if (piece * player > 0) continue;
                     //pieces = ScoreTable.PieceValue(piece*player);
 
