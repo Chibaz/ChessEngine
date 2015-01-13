@@ -65,9 +65,10 @@ namespace ChessEngine.CommandLine
                     /*_timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);*/
                     break;
                 case "usermove":
-                    IMove move = Decode(argument);
-                    move.Execute();
-                    StartThinking();
+                    Console.WriteLine("move e7e5");
+//                    IMove move = Decode(argument);
+//                    move.Execute();
+//                    StartThinking();
                     break;
                 case "?":
                     //implement later
@@ -80,6 +81,7 @@ namespace ChessEngine.CommandLine
                     break;
                 case "setboard":
                     /*_board.FENCurrent = new FEN(argument);*/
+                    SetFEN(argument);
                     break;
                 case "undo":
                     /*_board.MoveUndo();*/
@@ -121,12 +123,12 @@ namespace ChessEngine.CommandLine
             if (move is Move)
             {
                 Move moving = (Move)move;
-                moveNotation += moving.GetOrigin();
+                moveNotation += Converter.AlgStrings[moving.origin];
                 if (moving.GetKill() != null)
                 {
                     moveNotation += "x";
                 }
-                moveNotation += moving.GetTarget();
+                moveNotation += Converter.AlgStrings[moving.target];
                 if (moving.IsCheck())
                 {
                     moveNotation += "+";
@@ -151,9 +153,64 @@ namespace ChessEngine.CommandLine
             {
                 
                 move = new UserMove(input.Substring(0,2), input.Substring(2,2));
-
             }
             return null;
         }
+        public void SetFEN(string fen)
+        {
+            string[] info = fen.Split(new char[] {'/', ' '});
+            for (int rank = 0; rank < 8; rank++)
+            {
+                int file = 0;
+                foreach (char piece in info[rank])
+                {
+                    if (EmptyTiles.Contains(piece))
+                    {
+                        int e = (int) Char.GetNumericValue(piece);
+                        for (int f = file; f <= e; f++)
+                        {
+                            Board.Game.Tiles[(byte) (rank + f)] = 0;
+                            file++;
+                        }
+                    }
+                    else
+                    {
+                        Board.Game.Tiles[(byte) (rank + file)] = Converter.GetPiece(piece);
+                        file++;
+                    }
+                }
+            }
+            _ai.Turn = info[8];
+            foreach (char c in info[9])
+            {
+                if (c.Equals('-'))
+                {
+                    break;
+                }
+                switch (c)
+                {
+                    case 'K':
+                        Board.Game.WhiteKingCastle = true;
+                        break;
+                    case 'Q':
+                        Board.Game.WhiteQueenCastle = true;
+                        break;
+                    case 'k':
+                        Board.Game.BlackKingCastle = true;
+                        break;
+                    case 'q':
+                        Board.Game.BlackQueenCastle = true;
+                        break;
+                }
+            }
+            if (!info[10].Contains("-"))
+            {
+                Board.Game.EnPassant = (byte)Array.IndexOf(Converter.AlgStrings, info[10]);
+            }
+            Board.Game.FiftyMove = int.Parse(info[11]);
+            Board.Game.MoveCount = int.Parse(info[12]);
+        }
+
+        public static readonly char[] EmptyTiles = {'1', '2', '3', '4', '5', '6', '7', '8'};
     }
 }

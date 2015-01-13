@@ -7,10 +7,11 @@ namespace ChessEngine.Engine
 
     public class Logic
     {
-        private IMove _next;
-        private int score, _evals, _total;
+        private IMove _bestRootMove;
         private readonly MoveGenerator _mg;
-        private int Depth = 3;
+        private int _score, _evals, _total;
+        private int _depth = 3;
+        public string Turn;
         public Boolean EndGame;
 
         public Logic()
@@ -18,28 +19,28 @@ namespace ChessEngine.Engine
             _mg = new MoveGenerator();
         }
 
-        public void setDepth(int Depth)
+        public void SetDepth(int depth)
         {
-            this.Depth = Depth;
+            _depth = depth;
         }
 
-        public int getDepth() { return Depth; }
+        public int getDepth() { return _depth; }
 
         public IMove GetBestMove()
         {
             Console.WriteLine("performing best move");
-            _evals = score = _total = 0;
+            _evals = _score = _total = 0;
             var time = new Stopwatch();
             time.Start();
             Move bestMove = null;
             /*while (time.Elapsed < timeAllowed)
             {*/
-            DoAlphaBeta(Board.Game, Depth, Int32.MinValue, Int32.MaxValue, Board.aiColor, bestMove, 0);
+            DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Board.aiColor, bestMove, 0);
             /*depth++;
         }*/
             time.Stop();
             Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
-            return _next;
+            return _bestRootMove;
         }
 
         public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, Move prioMove, int bonus)
@@ -89,10 +90,10 @@ namespace ChessEngine.Engine
                     if (v > alpha)
                     {
                         alpha = v;
-                        if (rDepth == Depth)
+                        if (rDepth == _depth)
                         {
                             //Console.WriteLine("new best move " + v);
-                            _next = move;
+                            _bestRootMove = move;
                         }
                     }
                     if (alpha >= beta) //Stop if alpha is equal to or higher than beta, and prune the remainder

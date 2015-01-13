@@ -11,7 +11,7 @@ namespace ChessEngine.Engine
         public static int Evaluate(Board toEvaluate
             /*, int depth, int lastAI, int lastPlayer, out int wPieces, out int bPieces*/)
         {
-            _eBoard = toEvaluate.tiles;
+            _eBoard = toEvaluate.Tiles;
             var aiPieces = CalculatePieceScore(Board.aiColor);
             //Console.WriteLine("ai piece score is " + aiPieces + " endgame? " + (aiPieces < 600));
             var playerPieces = CalculatePieceScore(-Board.aiColor);

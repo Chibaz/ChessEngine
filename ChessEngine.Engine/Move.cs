@@ -87,10 +87,10 @@ namespace ChessEngine.Engine
             //Board.CheckForStuff(Board.Game, this);
             if (Killing.Position != null)
             {
-                Board.Game.tiles[Killing.Position] = 0;
+                Board.Game.Tiles[Killing.Position] = 0;
             }
-            Board.Game.tiles[target] = piece;
-            Board.Game.tiles[origin] = 0;
+            Board.Game.Tiles[target] = piece;
+            Board.Game.Tiles[origin] = 0;
             //Board.CheckForCheck(Board.Game);
             //Board.Game.CheckChecking(Board.Game);
         }
@@ -100,10 +100,10 @@ namespace ChessEngine.Engine
             //Board.CheckForStuff(temp, this);
             if (Killing.Position != null)
             {
-                temp.tiles[Killing.Position] = 0;
+                temp.Tiles[Killing.Position] = 0;
             }
-            temp.tiles[target] = piece;
-            temp.tiles[origin] = 0;
+            temp.Tiles[target] = piece;
+            temp.Tiles[origin] = 0;
             //Board.CheckForCheck(temp);
             //Board.Game.CheckChecking(temp);
         }
@@ -118,17 +118,9 @@ namespace ChessEngine.Engine
 //            }
         }
 
-        public string GetOrigin()
-        {
-            throw new System.NotImplementedException();
-        }
+        
 
         public object GetKill()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public string GetTarget()
         {
             throw new System.NotImplementedException();
         }
@@ -141,61 +133,61 @@ namespace ChessEngine.Engine
 
     public class Castling : IMove
     {
-        public byte king;
-        public int rookX;
-        public int nK, nR;
+        public byte King;
+        public int RookFile;
+        private readonly int _kingTarget, _rookTarget;
 
-        public Castling(byte k, int rX)
+        public Castling(byte k, int rFile)
         {
-            king = k;
-            rookX = rX;
-            if (rookX == 0)
+            King = k;
+            RookFile = rFile;
+            if (RookFile == 0)
             {
-                nK = 2;
-                nR = 3;
+                _kingTarget = 2;
+                _rookTarget = 3;
             }
             else
             {
-                nK = 6;
-                nR = 5;
+                _kingTarget = 6;
+                _rookTarget = 5;
             }
         }
 
         public void Execute()
         {
-            byte[] tiles = Board.Game.tiles;
+            byte[] tiles = Board.Game.Tiles;
             //Board.CheckForStuff(Board.Game, this);
 
-            if (king * Board.aiColor == 6)
+            if (King * Board.aiColor == 6)
             {
-                tiles[(byte)(7 + nR)] = tiles[(byte)(7 + rookX)];
-                tiles[(byte)(7 + nK)] = king;
+                tiles[(byte)(7 + _rookTarget)] = tiles[(byte)(7 + RookFile)];
+                tiles[(byte)(7 + _kingTarget)] = King;
             }
             else
             {
-                tiles[(byte)(0 + nR)] = tiles[(byte)(0 + rookX)];
-                tiles[(byte)(0 + nK)] = king;
+                tiles[(byte)(0 + _rookTarget)] = tiles[(byte)(0 + RookFile)];
+                tiles[(byte)(0 + _kingTarget)] = King;
             }
-            tiles[(byte)(0 + rookX)] = 0;
+            tiles[(byte)(0 + RookFile)] = 0;
             tiles[(byte)(0 + 4)] = 0;
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            byte[] tiles = temp.tiles;
+            byte[] tiles = temp.Tiles;
             //Board.CheckForStuff(temp, this);
 
-            if (king * Board.aiColor == 6)
+            if (King * Board.aiColor == 6)
             {
-                tiles[(byte)(7 + nR)] = tiles[(byte)(7 + rookX)];
-                tiles[(byte)(7 + nK)] = king;
+                tiles[(byte)(7 + _rookTarget)] = tiles[(byte)(7 + RookFile)];
+                tiles[(byte)(7 + _kingTarget)] = King;
             }
             else
             {
-                tiles[(byte)(0 + nR)] = tiles[(byte)(0 + rookX)];
-                tiles[(byte)(0 + nK)] = king;
+                tiles[(byte)(0 + _rookTarget)] = tiles[(byte)(0 + RookFile)];
+                tiles[(byte)(0 + _kingTarget)] = King;
             }
-            tiles[(byte)(0 + rookX)] = 0;
+            tiles[(byte)(0 + RookFile)] = 0;
             tiles[(byte)(0 + 4)] = 0;
         }
 
@@ -203,37 +195,17 @@ namespace ChessEngine.Engine
         {
 
         }
-
 
         public string GetSide()
         {
-            throw new System.NotImplementedException();
+            if (RookFile == 0)
+            {
+                return "queen";
+            }
+            else
+            {
+                return "king";
+            }
         }
-        /*
-        private int[] origin;
-        public int[] Origin { get { return origin; } }
-        private int[] target;
-        public int[] Target { get { return target; } set { target = value; } }
-        private int[] toKill;
-        public int[] ToKill { get { return toKill; } set { toKill = value; } }
-
-        public Castling(int[] origin)
-        {
-
-        }
-
-        public void Execute()
-        {
-
-        }
-        public void ExecuteOnBoard(Board temp)
-        {
-
-        }
-        public void Undo()
-        {
-
-        }
-        */
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace ChessEngine.CommandLine
         static void Main(string[] args)
         {
             Console.WriteLine("ChessEngine v{0}.{1} by Kasper Wind, Denmark", typeof(Program).Assembly.GetName().Version.Major, typeof(Program).Assembly.GetName().Version.Minor);
+
+            //Make logger
+            //FileStream log = new FileStream();
 
             ReadInput.DoWork += new DoWorkEventHandler(_bwReadInput_DoWork);
             ReadInput.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_bwReadInput_CompletedWork);

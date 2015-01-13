@@ -16,40 +16,38 @@ namespace ChessEngine.Engine
      */
     public class Board
     {
-        public static int aiColor = 1;
-        private static Board _board;
         public static Board Game
         {
             get { return _board ?? (_board = new Board()); }
         }
-        public int[] EnPassant;
-        public Boolean aiLeftCastling, aiRightCastling, playerLeftCastling, playerRightCastling;
+        public byte EnPassant;
+        public Boolean WhiteKingCastle, WhiteQueenCastle, BlackKingCastle, BlackQueenCastle;
         public Boolean aiCheck, playerCheck;
         //public int[,] tiles;
-        public byte[] tiles;
-        public int mate;
+        public byte[] Tiles;
+        public int Mate;
+        public int MoveCount, FiftyMove;
+        public static int aiColor = 1;
 
         public Board()
         {
             //tiles = new int[8, 8];
-            tiles = new byte[128];
-            aiLeftCastling = aiRightCastling = playerLeftCastling = playerRightCastling = true;
-            aiCheck = playerCheck = false;
-            mate = 0;
+            Tiles = new byte[128];
+            ResetGame();
         }
 
         //Used for resetting the pieces on the board
         public void ResetGame()
         {
-            aiLeftCastling = aiRightCastling = playerLeftCastling = playerRightCastling = true;
+            WhiteKingCastle = WhiteQueenCastle = BlackKingCastle = BlackQueenCastle = true;
             aiCheck = playerCheck = false;
-            mate = 0;
+            Mate = 0;
             for(int h = 0; h < 8; h++) 
             {
                 for (int w = 0; w < 8; w++)
                 {
                     //tiles[h, w] = GetStartPiece(h, w);
-                    tiles[16 * h + w] = GetStartPiece(h, w);
+                    Tiles[16 * h + w] = GetStartPiece(h, w);
                 }
             }
         }
@@ -97,7 +95,7 @@ namespace ChessEngine.Engine
         
         public byte GetSpecificTile(int rank, int file)
         {
-            return tiles[16 * rank + file];
+            return Tiles[16 * rank + file];
         }
 
         /*
@@ -113,16 +111,16 @@ namespace ChessEngine.Engine
             {
                 for (var w = 0; w < 8; w++)
                 {
-                    newBoard.tiles[16 * h + w] = GetSpecificTile(h, w);
+                    newBoard.Tiles[16 * h + w] = GetSpecificTile(h, w);
                 }
             }
-            newBoard.mate = this.mate;
+            newBoard.Mate = this.Mate;
             newBoard.aiCheck = this.aiCheck;
-            newBoard.aiLeftCastling = this.aiLeftCastling;
-            newBoard.aiRightCastling = this.aiRightCastling;
-            newBoard.playerCheck = this.playerCheck;
-            newBoard.playerLeftCastling = this.playerLeftCastling;
-            newBoard.playerRightCastling = this.playerRightCastling;
+//            newBoard.aiLeftCastling = this.aiLeftCastling;
+//            newBoard.aiRightCastling = this.aiRightCastling;
+//            newBoard.playerCheck = this.playerCheck;
+//            newBoard.playerLeftCastling = this.playerLeftCastling;
+//            newBoard.playerRightCastling = this.playerRightCastling;
             return newBoard;
         }
 
@@ -276,6 +274,8 @@ namespace ChessEngine.Engine
                 board.playerRightCastling = false;
             }
         }*/
+
+        private static Board _board;
     }
 }
 
