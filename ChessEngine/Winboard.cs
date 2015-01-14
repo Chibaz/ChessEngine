@@ -14,7 +14,7 @@ namespace ChessEngine.CommandLine
 
         public Winboard()
         {
-            Board board = Board.Game;
+            //Board board = Board.Game;
         }
 
         public void ProcessCmd(String input)
@@ -50,12 +50,12 @@ namespace ChessEngine.CommandLine
                     Program.ConsoleWriteline("feature done=1");*/
                     break;
                 case "new":
-                    /*
-                    _board.FENCurrent = new FEN(FEN.FENStart);
-                    _myplayer = Player.Black;*/
+                    //_board.FENCurrent = new FEN(FEN.FENStart);
+                    Board.Game.ResetGame();
+                    Logic.Player = 0x08;
                     break;
                 case "force":
-                    /*_myplayer = Player.None;*/
+                    Logic.Player = 0;
                     break;
                 case "go":
                     /*_myplayer = _board.WhosTurn;
@@ -65,10 +65,10 @@ namespace ChessEngine.CommandLine
                     /*_timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);*/
                     break;
                 case "usermove":
-                    Console.WriteLine("move e7e5");
-//                    IMove move = Decode(argument);
-//                    move.Execute();
-//                    StartThinking();
+                    //Console.WriteLine("move e7e5");
+                    IMove move = Decode(argument);
+                    move.Execute();
+                    StartThinking();
                     break;
                 case "?":
                     //implement later
@@ -114,6 +114,7 @@ namespace ChessEngine.CommandLine
         {
             IMove move = _ai.GetBestMove();
             String algebraicMove = Encode(move);
+            Program.Logger.WriteLine(algebraicMove);
             Console.WriteLine(algebraicMove);
         }
 
@@ -123,12 +124,12 @@ namespace ChessEngine.CommandLine
             if (move is Move)
             {
                 Move moving = (Move)move;
-                moveNotation += Converter.AlgStrings[moving.origin];
+                moveNotation += ChessConverter.AlgStrings[moving.origin];
                 if (moving.GetKill() != null)
                 {
                     moveNotation += "x";
                 }
-                moveNotation += Converter.AlgStrings[moving.target];
+                moveNotation += ChessConverter.AlgStrings[moving.target];
                 if (moving.IsCheck())
                 {
                     moveNotation += "+";
@@ -151,10 +152,10 @@ namespace ChessEngine.CommandLine
             }
             else
             {
-                
+                Program.Logger.WriteLine(input + " rank: " + input.Substring(0, 2) + " file: " + input.Substring(2, 2));
                 move = new UserMove(input.Substring(0,2), input.Substring(2,2));
             }
-            return null;
+            return move;
         }
         public void SetFEN(string fen)
         {
@@ -175,7 +176,7 @@ namespace ChessEngine.CommandLine
                     }
                     else
                     {
-                        Board.Game.Tiles[(byte) (rank + file)] = Converter.GetPiece(piece);
+                        Board.Game.Tiles[(byte) (rank + file)] = ChessConverter.GetPiece(piece);
                         file++;
                     }
                 }
@@ -205,7 +206,7 @@ namespace ChessEngine.CommandLine
             }
             if (!info[10].Contains("-"))
             {
-                Board.Game.EnPassant = (byte)Array.IndexOf(Converter.AlgStrings, info[10]);
+                Board.Game.EnPassant = (byte)Array.IndexOf(ChessConverter.AlgStrings, info[10]);
             }
             Board.Game.FiftyMove = int.Parse(info[11]);
             Board.Game.MoveCount = int.Parse(info[12]);

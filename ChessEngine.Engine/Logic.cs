@@ -13,6 +13,7 @@ namespace ChessEngine.Engine
         private int _depth = 3;
         public string Turn;
         public Boolean EndGame;
+        public static byte Player;
 
         public Logic()
         {
@@ -28,19 +29,23 @@ namespace ChessEngine.Engine
 
         public IMove GetBestMove()
         {
-            Console.WriteLine("performing best move");
-            _evals = _score = _total = 0;
-            var time = new Stopwatch();
-            time.Start();
-            Move bestMove = null;
-            /*while (time.Elapsed < timeAllowed)
+            if (Player != 0)
+            {
+                Console.WriteLine("performing best move");
+                _evals = _score = _total = 0;
+                var time = new Stopwatch();
+                time.Start();
+                Move bestMove = null;
+                /*while (time.Elapsed < timeAllowed)
             {*/
-            DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Board.aiColor, bestMove, 0);
-            /*depth++;
+                DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, bestMove, 0);
+                /*depth++;
         }*/
-            time.Stop();
-            Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
-            return _bestRootMove;
+                time.Stop();
+                Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
+                return _bestRootMove;
+            }
+            return null;
         }
 
         public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, Move prioMove, int bonus)
@@ -63,7 +68,7 @@ namespace ChessEngine.Engine
                 //Console.WriteLine("eval " + evals);
                 return e + bonus;
             }
-            if (rPlayer == Board.aiColor) //Maximizing
+            if (rPlayer == Player) //Maximizing
             {
                 //Get all possible moves from current state
                 foreach (var move in newMoves)

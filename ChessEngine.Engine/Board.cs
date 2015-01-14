@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ChessEngine.Engine
@@ -25,9 +26,10 @@ namespace ChessEngine.Engine
         public Boolean aiCheck, playerCheck;
         //public int[,] tiles;
         public byte[] Tiles;
+        public byte WhosTurn;
         public int Mate;
         public int MoveCount, FiftyMove;
-        public static int aiColor = 1;
+        //public static int aiColor = 1;
 
         public Board()
         {
@@ -42,29 +44,29 @@ namespace ChessEngine.Engine
             WhiteKingCastle = WhiteQueenCastle = BlackKingCastle = BlackQueenCastle = true;
             aiCheck = playerCheck = false;
             Mate = 0;
-            for(int h = 0; h < 8; h++) 
+            for(int rank = 0; rank < 8; rank++) 
             {
-                for (int w = 0; w < 8; w++)
+                for (int file = 0; file < 8; file++)
                 {
-                    //tiles[h, w] = GetStartPiece(h, w);
-                    Tiles[16 * h + w] = GetStartPiece(h, w);
+                    //tiles[rank, file] = GetStartPiece(rank, file);
+                    Tiles[16 * rank + file] = GetStartPiece(rank, file);
                 }
             }
         }
 
         //Used for getting which piece will be at the a specified tile at the start of a game
-        public byte GetStartPiece(int h, int w)
+        public byte GetStartPiece(int rank, int file)
         {
             byte piece = 0;
 
             //Gets which piece is supposed to be at what position
-            if (h == 1 || h == 6)
+            if (rank == 1 || rank == 6)
             {
                 piece = 0x01;
             }
-            else
+            else if(rank == 0 || rank == 7)
             {
-                switch (w)
+                switch (file)
                 {
                     case 0: case 7:
                         piece = 0x06;
@@ -84,7 +86,7 @@ namespace ChessEngine.Engine
                 }
             }
 
-            if (h == 6 || h == 7)
+            if (rank == 6 || rank == 7)
             {
                 piece += 0x08;
             }
@@ -274,6 +276,20 @@ namespace ChessEngine.Engine
                 board.playerRightCastling = false;
             }
         }*/
+
+        public string PrintBoard()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int h = 0; h < 8; h++)
+            {
+                for (int w = 0; w < 8; w++)
+                {
+                    sb.Append(Tiles[16*h + w]);
+                }
+                sb.Append("\n");
+            }
+            return sb.ToString();
+        }
 
         private static Board _board;
     }

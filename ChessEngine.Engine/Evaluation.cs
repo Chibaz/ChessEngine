@@ -12,21 +12,21 @@ namespace ChessEngine.Engine
             /*, int depth, int lastAI, int lastPlayer, out int wPieces, out int bPieces*/)
         {
             _eBoard = toEvaluate.Tiles;
-            var aiPieces = CalculatePieceScore(Board.aiColor);
+            var aiPieces = CalculatePieceScore(Logic.Player);
             //Console.WriteLine("ai piece score is " + aiPieces + " endgame? " + (aiPieces < 600));
-            var playerPieces = CalculatePieceScore(-Board.aiColor);
+            var playerPieces = CalculatePieceScore(-Logic.Player);
             //Console.WriteLine("player piece score is " + playerPieces + " endgame? " + (playerPieces < 600));
             if (aiPieces <= 600 || playerPieces <= 600)
             {
                 _endgame = true;
                 if (aiPieces < playerPieces)
                 {
-                    _losing = Board.aiColor;
+                    _losing = Logic.Player;
                     //Console.WriteLine("ai is currently losing");
                 }
                 else if (aiPieces > playerPieces)
                 {
-                    _losing = -Board.aiColor;
+                    _losing = -Logic.Player;
                     //Console.WriteLine("player is currently losing");
                 }
                 else
@@ -40,8 +40,8 @@ namespace ChessEngine.Engine
                 //Console.WriteLine("endgame enabled");
                 _losing = 0;
             }
-            var aiScore = EvaluateSide(Board.aiColor);
-            var playerScore = EvaluateSide(-Board.aiColor);
+            var aiScore = EvaluateSide(Logic.Player);
+            var playerScore = EvaluateSide(-Logic.Player);
             aiScore += aiPieces;
             playerScore += playerPieces;
             var total = aiScore - playerScore;
@@ -51,7 +51,7 @@ namespace ChessEngine.Engine
         public static int EvaluateSide(int player)
         {
             ScoreTable sTable;
-            if (player == Board.aiColor)
+            if (player == Logic.Player)
             {
                 sTable = new ScoreAI();
             }

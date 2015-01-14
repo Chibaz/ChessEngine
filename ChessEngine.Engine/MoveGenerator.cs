@@ -22,7 +22,7 @@ namespace ChessEngine.Engine
             {
                 for (int w = 0; w < 8; w++)
                 {
-                    if (Board.Game.Tiles[16 * h + w] * player > 0)
+                    if (Board.Game.Tiles[(byte)(h + w)] * player > 0)
                     {
                         allMoves.AddRange(GetLegalMovements((byte)(h + w)));
                     }
@@ -34,24 +34,35 @@ namespace ChessEngine.Engine
 
         public List<IMove> GetLegalMovements(byte origin)
         {
-            var moves = new List<IMove>();
-            var piece = Math.Abs(_moveBoard.Tiles[origin]);
+            List<IMove> moves = new List<IMove>();
+            byte piece = _moveBoard.Tiles[origin];
 
-            if (piece == 1)
+            switch (piece)
             {
-                moves.AddRange(GetPawnMoves(origin));
-            }
-            if (piece == 2 || piece == 5) //Movement in straight lines
-            {
-                moves.AddRange(GetStraightMoves(origin));
-            }
-            if (piece == 4 || piece == 5) //Movement in diagonal lines
-            {
-                moves.AddRange(GetDiagonalMoves(origin));
-            }
-            if (piece == 3 || piece == 6) //Movement is an absolute distance
-            {
-                moves.AddRange(GetAbsoluteMoves(origin));
+                    //pawn
+                case 0x01: case 0x09:
+                    moves.AddRange(GetPawnMoves(origin));
+                    break;
+                    //knight
+                case 0x02: case 0x0A:
+                    moves.AddRange(GetAbsoluteMoves(origin));
+                    break;
+                    //king
+                case 0x03: case 0x0B:
+                    moves.AddRange(GetAbsoluteMoves(origin));
+                    break;
+                    //bishop
+                case 0x05: case 0x0D:
+                    moves.AddRange(GetAbsoluteMoves(origin));
+                    break;
+                    //rook
+                case 0x06: case 0x0E:
+                    moves.AddRange(GetAbsoluteMoves(origin));
+                    break;
+                    //queen
+                case 0x07: case 0x0F:
+                    moves.AddRange(GetAbsoluteMoves(origin));
+                    break;
             }
             return moves;
         }
@@ -315,7 +326,7 @@ namespace ChessEngine.Engine
             byte piece = _moveBoard.Tiles[origin];
             byte target;
             var pawnMoves = new List<IMove>();
-            var direction = piece * Board.aiColor;
+            var direction = piece * Logic.Player; //ERROR PLAYER
             Move newMove;
 
             //Move one space
@@ -325,7 +336,7 @@ namespace ChessEngine.Engine
                 pawnMoves.Add(newMove);
                 //Move ahead two spaces from start
                 int rank = origin & 0x70;
-                if (((rank == 6 && piece * Board.aiColor == 1) && _moveBoard.Tiles[origin - 32] == 0) || ((rank == 1 && piece * Board.aiColor == 1) && _moveBoard.Tiles[origin + 32] == 0))
+                if (((rank == 6 && piece * Logic.Player == 1) && _moveBoard.Tiles[origin - 32] == 0) || ((rank == 1 && piece * Logic.Player == 1) && _moveBoard.Tiles[origin + 32] == 0)) //ERROR PLAYER
                 {
                     newMove = new Move(origin, piece);
                     newMove.target = (byte)(((0x70 & origin) + 0x20) + (0x07 & origin));

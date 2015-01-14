@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using ChessEngine;
 
 namespace ChessEngine.Engine
 {
@@ -37,22 +39,20 @@ namespace ChessEngine.Engine
 
     public class UserMove : IMove
     {
-        private string _origin;
-        private string _target;
+        private byte _origin;
+        private byte _target;
 
         public UserMove(string origin, string target)
         {
-            _origin = origin;
-            _target = target;
+            _origin = (byte)Array.IndexOf(ChessConverter.AlgStrings, origin);
+            _target = (byte)Array.IndexOf(ChessConverter.AlgStrings, target);
         }
 
         public void Execute()
         {
-            /*
-            int piece = Board.Game.tiles[int.Parse(_origin)];
-            Board.Game.tiles[int.Parse(_origin)] = 0;
-            Board.Game.tiles[int.Parse(_target)] = piece;
-            */
+            byte piece = Board.Game.Tiles[_origin];
+            Board.Game.Tiles[_origin] = 0;
+            Board.Game.Tiles[_target] = piece;
         }
 
         public void ExecuteOnBoard(Board temp)
@@ -158,7 +158,7 @@ namespace ChessEngine.Engine
             byte[] tiles = Board.Game.Tiles;
             //Board.CheckForStuff(Board.Game, this);
 
-            if (King * Board.aiColor == 6)
+            if (King * Logic.Player == 6)
             {
                 tiles[(byte)(7 + _rookTarget)] = tiles[(byte)(7 + RookFile)];
                 tiles[(byte)(7 + _kingTarget)] = King;
@@ -177,7 +177,7 @@ namespace ChessEngine.Engine
             byte[] tiles = temp.Tiles;
             //Board.CheckForStuff(temp, this);
 
-            if (King * Board.aiColor == 6)
+            if (King * Logic.Player == 6)
             {
                 tiles[(byte)(7 + _rookTarget)] = tiles[(byte)(7 + RookFile)];
                 tiles[(byte)(7 + _kingTarget)] = King;
