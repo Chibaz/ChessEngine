@@ -284,7 +284,7 @@ namespace ChessEngine.Engine
             {
                 for (int w = 0; w < 8; w++)
                 {
-                    sb.Append(Tiles[16*h + w]);
+                    sb.Append(Tiles[16*h + w] + " ");
                 }
                 sb.Append("\n");
             }

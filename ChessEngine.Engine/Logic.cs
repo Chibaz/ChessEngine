@@ -29,7 +29,7 @@ namespace ChessEngine.Engine
 
         public IMove GetBestMove()
         {
-            if (Player != 0)
+            if (Player != 0xFF)
             {
                 Console.WriteLine("performing best move");
                 _evals = _score = _total = 0;

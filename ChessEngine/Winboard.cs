@@ -15,6 +15,7 @@ namespace ChessEngine.CommandLine
         public Winboard()
         {
             //Board board = Board.Game;
+            Console.WriteLine("feature setboard=1");
         }
 
         public void ProcessCmd(String input)
@@ -55,11 +56,11 @@ namespace ChessEngine.CommandLine
                     Logic.Player = 0x08;
                     break;
                 case "force":
-                    Logic.Player = 0;
+                    Logic.Player = 0xFF;
                     break;
                 case "go":
-                    /*_myplayer = _board.WhosTurn;
-                    StartThinking();*/
+                    Logic.Player = Board.Game.WhosTurn;
+                    StartThinking();
                     break;
                 case "time":
                     /*_timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);*/
@@ -80,7 +81,7 @@ namespace ChessEngine.CommandLine
                     //If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
                     break;
                 case "setboard":
-                    /*_board.FENCurrent = new FEN(argument);*/
+                    //_board.FENCurrent = new FEN(argument);
                     SetFEN(argument);
                     break;
                 case "undo":
@@ -159,24 +160,29 @@ namespace ChessEngine.CommandLine
         }
         public void SetFEN(string fen)
         {
-            string[] info = fen.Split(new char[] {'/', ' '});
+            Board board = Board.Game;
+            board.ResetGame();
+            string[] info = fen.Split(new [] {'/', ' '});
             for (int rank = 0; rank < 8; rank++)
             {
+                Program.Logger.WriteLine(info[rank]);
                 int file = 0;
                 foreach (char piece in info[rank])
                 {
                     if (EmptyTiles.Contains(piece))
                     {
                         int e = (int) Char.GetNumericValue(piece);
+                        Program.Logger.WriteLine("space of " + e);
                         for (int f = file; f <= e; f++)
                         {
-                            Board.Game.Tiles[(byte) (rank + f)] = 0;
-                            file++;
+                            Board.Game.Tiles[16 * rank + e] = 0;
                         }
+                        file += e;
                     }
                     else
                     {
-                        Board.Game.Tiles[(byte) (rank + file)] = ChessConverter.GetPiece(piece);
+                        Board.Game.Tiles[16* rank + file] = ChessConverter.GetPiece(piece);
+                        Program.Logger.WriteLine("at " + rank + " " + file + " equals " + (16 * rank + file) + " piece: " + ChessConverter.GetPiece(piece));
                         file++;
                     }
                 }
