@@ -67,6 +67,7 @@ namespace ChessEngine.CommandLine
                 }
             }catch(Exception ex){
                 Console.WriteLine(ex.StackTrace);
+                Logger.WriteLine(ex.Message);
                 Logger.WriteLine(ex.StackTrace);
             }
         }

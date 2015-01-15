@@ -12,21 +12,21 @@ namespace ChessEngine.Engine
             /*, int depth, int lastAI, int lastPlayer, out int wPieces, out int bPieces*/)
         {
             _eBoard = toEvaluate.Tiles;
-            var aiPieces = CalculatePieceScore(Logic.Player);
+            int logicPieces = CalculatePieceScore(Logic.Player);
             //Console.WriteLine("ai piece score is " + aiPieces + " endgame? " + (aiPieces < 600));
-            var playerPieces = CalculatePieceScore(-Logic.Player);
+            int enemyPieces = CalculatePieceScore(Logic.GetEnemy());
             //Console.WriteLine("player piece score is " + playerPieces + " endgame? " + (playerPieces < 600));
-            if (aiPieces <= 600 || playerPieces <= 600)
+            if (logicPieces <= 600 || enemyPieces <= 600)
             {
                 _endgame = true;
-                if (aiPieces < playerPieces)
+                if (logicPieces < enemyPieces)
                 {
                     _losing = Logic.Player;
                     //Console.WriteLine("ai is currently losing");
                 }
-                else if (aiPieces > playerPieces)
+                else if (logicPieces > enemyPieces)
                 {
-                    _losing = -Logic.Player;
+                    _losing = Logic.GetEnemy();
                     //Console.WriteLine("player is currently losing");
                 }
                 else
@@ -34,75 +34,53 @@ namespace ChessEngine.Engine
                     _losing = 0;
                 }
             }
-            else if (!_endgame && (aiPieces <= 1600 || playerPieces <= 1600))
+            else if (!_endgame && (logicPieces <= 1600 || enemyPieces <= 1600))
             {
                 _endgame = true;
                 //Console.WriteLine("endgame enabled");
                 _losing = 0;
             }
-            var aiScore = EvaluateSide(Logic.Player);
-            var playerScore = EvaluateSide(-Logic.Player);
-            aiScore += aiPieces;
-            playerScore += playerPieces;
-            var total = aiScore - playerScore;
+            int logicScore = EvaluateSide(Logic.Player);
+            int enemyScore = EvaluateSide(Logic.GetEnemy());
+            logicScore += logicPieces;
+            enemyScore += enemyPieces;
+            int total = logicScore - enemyScore;
             return total;
         }
 
-        public static int EvaluateSide(int player)
+        public static int EvaluateSide(byte player)
         {
             ScoreTable sTable;
-            if (player == Logic.Player)
+            if (player == Logic.WhitePlayer)
             {
-                sTable = new ScoreAI();
+                sTable = new ScoreWhite();
             }
             else
             {
-                sTable = new ScorePlayer();
+                sTable = new ScoreBlack();
             }
-            //var pieces = 0;
-            var score = 0;
-            for (int rank = 0; rank < _eBoard.GetLength(0); rank++)
+            //int pieces = 0;
+            int score = 0;
+            for (int rank = 0; rank < 8; rank++)
             {
-                for (int file = 0; file < _eBoard.GetLength(0); file++)
+                for (int file = 0; file < 8; file++)
                 {
-                    byte thisPiece = _eBoard[(byte)(rank + file)];
+                    byte thisPiece = _eBoard[16*rank + file];
                     //pieces += ScoreTable.PieceValue(thisPiece);
-                    switch (thisPiece * player)
+                    if((0x08 & thisPiece) == player || (0x08 & thisPiece) == player) continue;
+                    switch (thisPiece & 0x07)
                     {
-                        case 1:
+                        case 0x01:
                             score += sTable.Pawn[rank, file];
-                            //pieces += 100;
                             break;
-                        case 2:
-                            if (_losing == 0)
-                            {
-                                score += sTable.Rook[rank, file];
-                            }
-                            //pieces += 500;
-                            break;
-                        case 3:
+                        case 0x02:
                             if (_losing == 0)
                             {
                                 score += sTable.Knight[rank, file];
                             }
-                            //pieces += 300;
                             break;
-                        case 4:
-                            if (_losing == 0)
-                            {
-                                score += sTable.Bishop[rank, file];
-                            }
-                            //pieces += 325;
-                            break;
-                        case 5:
-                            if (_losing == 0)
-                            {
-                                score += sTable.Queen[rank, file];
-                            }
-                            //pieces += 900;
-                            break;
-                        case 6:
-                            var kingScore = sTable.King[rank, file];
+                        case 0x03:
+                            int kingScore = sTable.King[rank, file];
                             if (_losing == player)
                             {
                                 kingScore *= 8;
@@ -110,39 +88,54 @@ namespace ChessEngine.Engine
                             score += kingScore;
                             score += 10000;
                             break;
+                        case 0x05:
+                            if (_losing == 0)
+                            {
+                                score += sTable.Bishop[rank, file];
+                            }
+                            break;
+                        case 0x06:
+                            if (_losing == 0)
+                            {
+                                score += sTable.Rook[rank, file];
+                            }
+                            break;
+                        case 0x07:
+                            if (_losing == 0)
+                            {
+                                score += sTable.Queen[rank, file];
+                            }
+                            break;
                     }
                 }
             }
-            //playerPieces = pieces;
             return score;
         }
 
-        public static int CalculatePieceScore(int player)
+        public static int CalculatePieceScore(byte player)
         {
-            var pieces = 0;
-            for (int rank = 0; rank < _eBoard.GetLength(0); rank++)
+            int pieces = 0;
+            for (int rank = 0; rank < 8; rank++)
             {
-                for (int file = 0; file < _eBoard.GetLength(0); file++)
+                for (int file = 0; file < 8; file++)
                 {
-                    var piece = _eBoard[(byte)(rank + file)];
-                    //if (piece * player > 0) continue;
-                    //pieces = ScoreTable.PieceValue(piece*player);
+                    byte piece = _eBoard[16*rank + file];
 
-                    switch (piece * player)
+                    switch (piece & 0x07)
                     {
-                        case 1:
+                        case 0x01:
                             pieces += 100;
                             break;
-                        case 2:
-                            pieces += 500;
-                            break;
-                        case 3:
+                        case 0x02:
                             pieces += 300;
                             break;
-                        case 4:
+                        case 0x05:
                             pieces += 325;
                             break;
-                        case 5:
+                        case 0x06:
+                            pieces += 500;
+                            break;
+                        case 0x07:
                             pieces += 900;
                             break;
                     }
@@ -153,15 +146,15 @@ namespace ChessEngine.Engine
 
         public static int EvaluateBonus(IMove move, int depth)
         {
-            if (!(move is Move)) return 0;
+            if (!(move is Move) && !(move is EnPassant)) return 0;
             var m = (Move)move;
-            if (m.Killing.Piece != 0 && m.Killing.Position != null)
+            if (m.kill != 0 && m.kill != null)
             {
                 /*
                     Console.WriteLine("at depth " + depth + " applied bonus/penalty");
                     Console.WriteLine("for " + m.Moving.Piece + " taking " + m.Killing.Piece + "\n");
                      * */
-                return ScoreTable.PieceValue(m.Killing.Piece) / 10 * depth;
+                return ScoreTable.PieceValue(m.kill) / 10 * depth;
             }
             return 0;
         }
@@ -207,7 +200,7 @@ namespace ChessEngine.Engine
         }
     }
 
-    internal class ScoreAI : ScoreTable
+    internal class ScoreWhite : ScoreTable
     {
         private readonly int[,] _pawn =
         {
@@ -327,7 +320,7 @@ namespace ChessEngine.Engine
         }
     }
 
-    internal class ScorePlayer : ScoreTable
+    internal class ScoreBlack : ScoreTable
     {
         private readonly int[,] _pawn =
         {

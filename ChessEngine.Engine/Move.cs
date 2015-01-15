@@ -41,40 +41,43 @@ namespace ChessEngine.Engine
     {
         private byte _origin;
         private byte _target;
+        private byte _piece;
+        private byte _kill;
 
         public UserMove(string origin, string target)
         {
             _origin = (byte)Array.IndexOf(ChessConverter.AlgStrings, origin);
             _target = (byte)Array.IndexOf(ChessConverter.AlgStrings, target);
+            _piece = Board.Game.Tiles[_origin];
         }
 
         public void Execute()
         {
-            byte piece = Board.Game.Tiles[_origin];
+            _kill = Board.Game.Tiles[_target];
+            Board.Game.Tiles[_target] = _piece;
             Board.Game.Tiles[_origin] = 0;
-            Board.Game.Tiles[_target] = piece;
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            throw new NotImplementedException();
+            _kill = temp.Tiles[_target];
+            temp.Tiles[_target] = _piece;
+            temp.Tiles[_origin] = 0;
         }
 
         public void Undo()
         {
-            throw new NotImplementedException();
+            Board.Game.Tiles[_target] = _kill;
+            Board.Game.Tiles[_origin] = _piece;
         }
     }
 
     public class Move : IMove
     {
-        public MovingPiece Moving;
-        public TakenPiece Killing;
-        public Move Next;
-
         public byte origin;
         public byte target;
         public byte piece;
+        public byte kill;
 
         public Move(byte origin, byte piece)
         {
@@ -85,10 +88,7 @@ namespace ChessEngine.Engine
         public void Execute()
         {
             //Board.CheckForStuff(Board.Game, this);
-            if (Killing.Position != null)
-            {
-                Board.Game.Tiles[Killing.Position] = 0;
-            }
+            //kill = Board.Game.Tiles[target];
             Board.Game.Tiles[target] = piece;
             Board.Game.Tiles[origin] = 0;
             //Board.CheckForCheck(Board.Game);
@@ -98,10 +98,7 @@ namespace ChessEngine.Engine
         public void ExecuteOnBoard(Board temp)
         {
             //Board.CheckForStuff(temp, this);
-            if (Killing.Position != null)
-            {
-                temp.Tiles[Killing.Position] = 0;
-            }
+            //kill = temp.Tiles[target];
             temp.Tiles[target] = piece;
             temp.Tiles[origin] = 0;
             //Board.CheckForCheck(temp);
@@ -110,24 +107,32 @@ namespace ChessEngine.Engine
 
         public void Undo()
         {
-//            Board.Game.tiles[Moving.Origin[0], Moving.Origin[1]] = Moving.Piece;
-//            Board.Game.tiles[Moving.Target[0], Moving.Target[1]] = 0;
-//            if (Killing.Position != null)
-//            {
-//                Board.Game.tiles[Killing.Position[0], Killing.Position[1]] = Killing.Piece;
-//            }
+            Board.Game.Tiles[target] = kill;
+            Board.Game.Tiles[origin] = piece;
+        }
+    }
+
+    public class EnPassant : IMove
+    {
+        public byte origin;
+        public byte target;
+
+        public void Execute()
+        {
+            Board.Game.Tiles[target] = 1;
+            Board.Game.Tiles[origin] = 0;
         }
 
-        
-
-        public object GetKill()
+        public void ExecuteOnBoard(Board temp)
         {
-            throw new System.NotImplementedException();
+            temp.Tiles[target] = 1;
+            temp.Tiles[origin] = 0;
         }
 
-        public bool IsCheck()
+        public void Undo()
         {
-            throw new System.NotImplementedException();
+            Board.Game.Tiles[target] = 1;
+            Board.Game.Tiles[origin] = 1;
         }
     }
 
