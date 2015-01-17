@@ -53,7 +53,7 @@ namespace ChessEngine.CommandLine
                 case "new":
                     //_board.FENCurrent = new FEN(FEN.FENStart);
                     Board.Game.ResetGame();
-                    Logic.Player = 0x08;
+                    Logic.Player = Logic.BlackPlayer;
                     break;
                 case "force":
                     Logic.Player = 0xFF;
@@ -69,6 +69,7 @@ namespace ChessEngine.CommandLine
                     //Console.WriteLine("move e7e5");
                     IMove move = Decode(argument);
                     move.Execute();
+                    Program.Logger.WriteLine(Board.Game.PrintBoard());
                     StartThinking();
                     break;
                 case "?":
@@ -114,27 +115,30 @@ namespace ChessEngine.CommandLine
         private void StartThinking()
         {
             IMove move = _ai.GetBestMove();
+//            Move test = (Move) move;
+//            Program.Logger.WriteLine(test.origin + ":" + test.target);
             String algebraicMove = Encode(move);
+            move.Execute();
             Program.Logger.WriteLine(algebraicMove);
-            Console.WriteLine(algebraicMove);
+            Console.WriteLine("move " + algebraicMove);
         }
 
         public String Encode(IMove move)
         {
             String moveNotation = "";
-            if (move is Move)
+            if (move is Move || move is EnPassant)
             {
                 Move moving = (Move)move;
                 moveNotation += ChessConverter.AlgStrings[moving.origin];
-                if (moving.GetKill() != null)
-                {
-                    moveNotation += "x";
-                }
+//                if (moving.kill != null)
+//                {
+//                    moveNotation += "x";
+//                }
                 moveNotation += ChessConverter.AlgStrings[moving.target];
-                if (moving.IsCheck())
-                {
-                    moveNotation += "+";
-                }
+//                if (moving.IsCheck())
+//                {
+//                    moveNotation += "+";
+//                }
             }
             else if (move is Castling)
             {
@@ -172,17 +176,17 @@ namespace ChessEngine.CommandLine
                     if (EmptyTiles.Contains(piece))
                     {
                         int e = (int) Char.GetNumericValue(piece);
-                        Program.Logger.WriteLine("space of " + e);
-                        for (int f = file; f <= e; f++)
+                        //Program.Logger.WriteLine("space of " + e);
+                        for (int f = file; f < (e + file); f++)
                         {
-                            Board.Game.Tiles[16 * rank + e] = 0;
+                            board.Tiles[16 * rank + f] = 0;
                         }
                         file += e;
                     }
                     else
                     {
-                        Board.Game.Tiles[16* rank + file] = ChessConverter.GetPiece(piece);
-                        Program.Logger.WriteLine("at " + rank + " " + file + " equals " + (16 * rank + file) + " piece: " + ChessConverter.GetPiece(piece));
+                        board.Tiles[16* rank + file] = ChessConverter.GetPiece(piece);
+                        //Program.Logger.WriteLine("at " + rank + " " + file + " equals " + (16 * rank + file) + " piece: " + ChessConverter.GetPiece(piece));
                         file++;
                     }
                 }
@@ -197,25 +201,25 @@ namespace ChessEngine.CommandLine
                 switch (c)
                 {
                     case 'K':
-                        Board.Game.WhiteKingCastle = true;
+                        board.WhiteKingCastle = true;
                         break;
                     case 'Q':
-                        Board.Game.WhiteQueenCastle = true;
+                        board.WhiteQueenCastle = true;
                         break;
                     case 'k':
-                        Board.Game.BlackKingCastle = true;
+                        board.BlackKingCastle = true;
                         break;
                     case 'q':
-                        Board.Game.BlackQueenCastle = true;
+                        board.BlackQueenCastle = true;
                         break;
                 }
             }
             if (!info[10].Contains("-"))
             {
-                Board.Game.EnPassant = (byte)Array.IndexOf(ChessConverter.AlgStrings, info[10]);
+                board.EnPassant = (byte)Array.IndexOf(ChessConverter.AlgStrings, info[10]);
             }
-            Board.Game.FiftyMove = int.Parse(info[11]);
-            Board.Game.MoveCount = int.Parse(info[12]);
+            board.FiftyMove = int.Parse(info[11]);
+            board.MoveCount = int.Parse(info[12]);
         }
 
         public static readonly char[] EmptyTiles = {'1', '2', '3', '4', '5', '6', '7', '8'};

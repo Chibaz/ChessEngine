@@ -10,7 +10,7 @@ namespace ChessEngine.Engine
         private IMove _bestRootMove;
         private readonly MoveGenerator _mg;
         private int _score, _evals, _total;
-        private int _depth = 3;
+        private int _depth = 2;
         public string Turn;
         public Boolean EndGame;
         public static byte Player;
@@ -35,28 +35,28 @@ namespace ChessEngine.Engine
                 _evals = _score = _total = 0;
                 var time = new Stopwatch();
                 time.Start();
-                Move bestMove = null;
+                IMove bestMove = null;
                 /*while (time.Elapsed < timeAllowed)
             {*/
-                DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, bestMove, 0);
+                DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, /*0,*/ out bestMove);
                 /*depth++;
         }*/
                 time.Stop();
-                Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
+                //Console.WriteLine(time.Elapsed + ": " + _evals + " evaluations after " + _total + " boards");
+
                 return _bestRootMove;
             }
             return null;
         }
 
-        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, Move prioMove, int bonus)
+        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, /*int bonus,*/ out IMove prioMove)
         {
-            List<IMove> newMoves = _mg.GetAllMovesForPlayer(lastBoard, rPlayer);
-            _total += newMoves.Count;
-            int newBonus;
+            //int newBonus;
             //Console.WriteLine("number of moves from last board: " + newMoves.Count + " at depth " + rDepth + " for player + " + rPlayer);
-            if (newMoves.Count == 0 || rDepth == 0)
+            prioMove = null;
+            if (/*newMoves.Count == 0 ||*/ rDepth == 0)
             {
-                var e = Evaluation.Evaluate(lastBoard);
+                int e = Evaluation.Evaluate(lastBoard);
                 //Console.WriteLine("eval: " + e + " bonus is " + bonus);
                 //e += Evaluation.evaluateBonus(new Move(new int[] { 0, 0 }, 0), rDepth);//, rDepth
                 /*if (bonus != 0)
@@ -66,14 +66,16 @@ namespace ChessEngine.Engine
                 Console.WriteLine("total is " + (e + bonus));*/
                 _evals++;
                 //Console.WriteLine("eval " + evals);
-                return e + bonus;
+                return e /*+ bonus*/;
             }
+            List<IMove> newMoves = _mg.GetAllMovesForPlayer(lastBoard, rPlayer);
+            _total += newMoves.Count;
             if (rPlayer == Player) //Maximizing
             {
                 //Get all possible moves from current state
-                foreach (var move in newMoves)
+                foreach (IMove move in newMoves)
                 {
-                    var newBoard = lastBoard.CloneBoard();
+                    Board newBoard = lastBoard.CloneBoard();
                     move.ExecuteOnBoard(newBoard);
                     /*
                     if (rDepth == 1)
@@ -90,14 +92,15 @@ namespace ChessEngine.Engine
                         }
                         Console.WriteLine();
                     }*/
-                    newBonus = bonus + Evaluation.EvaluateBonus(move, rDepth);
-                    var v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, rPlayer * -1, null, newBonus); //Recursive call on possible methods
+                    //newBonus = bonus + Evaluation.EvaluateBonus(move, rDepth);
+                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, GetEnemy(), /*newBonus,*/ out prioMove); //Recursive call on possible methods
                     if (v > alpha)
                     {
                         alpha = v;
                         if (rDepth == _depth)
                         {
                             //Console.WriteLine("new best move " + v);
+                            prioMove = move;
                             _bestRootMove = move;
                         }
                     }
@@ -110,9 +113,9 @@ namespace ChessEngine.Engine
             }
             else //Minimizing
             {
-                foreach (var move in newMoves)
+                foreach (IMove move in newMoves)
                 {
-                    var newBoard = lastBoard.CloneBoard();
+                    Board newBoard = lastBoard.CloneBoard();
                     move.ExecuteOnBoard(newBoard);
                     /*
                     if (rDepth == 1)
@@ -139,8 +142,8 @@ namespace ChessEngine.Engine
                     {
                         Console.WriteLine("increased bonus from " + bonus + " to " + newBonus);
                     }*/
-                    newBonus = bonus - Evaluation.EvaluateBonus(move, rDepth);
-                    var v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, rPlayer * -1, null, newBonus); //Recursive call on possible method                    
+                    //newBonus = bonus - Evaluation.EvaluateBonus(move, rDepth);
+                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, Player, /*newBonus,*/ out prioMove); //Recursive call on possible method                    
                     if (v < beta)
                     {
                         beta = v;
@@ -153,7 +156,17 @@ namespace ChessEngine.Engine
                 return beta;
             }
         }
+
+        public static byte GetEnemy()
+        {
+            return Player.Equals(BlackPlayer) ? WhitePlayer : BlackPlayer;
+        }
+
+        public static byte WhitePlayer = 0x00;
+        public static byte BlackPlayer = 0x08;
     }
+
+
 }
 
 
