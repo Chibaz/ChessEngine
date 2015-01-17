@@ -57,7 +57,7 @@ namespace ChessEngine.Engine
         //Used for getting which piece will be at the a specified tile at the start of a game
         public byte GetStartPiece(int rank, int file)
         {
-            byte piece = 0;
+            byte piece = 0x88;
 
             //Gets which piece is supposed to be at what position
             if (rank == 1 || rank == 6)

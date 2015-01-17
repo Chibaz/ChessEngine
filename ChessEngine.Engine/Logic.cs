@@ -49,7 +49,7 @@ namespace ChessEngine.Engine
             return null;
         }
 
-        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, int rPlayer, /*int bonus,*/ out IMove prioMove)
+        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, byte rPlayer, /*int bonus,*/ out IMove prioMove)
         {
             //int newBonus;
             //Console.WriteLine("number of moves from last board: " + newMoves.Count + " at depth " + rDepth + " for player + " + rPlayer);
