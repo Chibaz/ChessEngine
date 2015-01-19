@@ -15,7 +15,6 @@ namespace ChessEngine.CommandLine
         public Winboard()
         {
             //Board board = Board.Game;
-            Console.WriteLine("feature setboard=1");
         }
 
         public void ProcessCmd(String input)
@@ -44,11 +43,10 @@ namespace ChessEngine.CommandLine
             switch (command)
             {
                 case "protover":
-                    /*
-                    Program.ConsoleWriteline("feature usermove=1");
-                    Program.ConsoleWriteline("feature setboard=1");
-                    Program.ConsoleWriteline("feature analyze=1");
-                    Program.ConsoleWriteline("feature done=1");*/
+                    Console.WriteLine("feature usermove=1");
+                    Console.WriteLine("feature setboard=1");
+                    Console.WriteLine("feature analyze=1");
+                    Console.WriteLine("feature done=1");
                     break;
                 case "new":
                     //_board.FENCurrent = new FEN(FEN.FENStart);

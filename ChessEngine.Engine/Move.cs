@@ -93,6 +93,7 @@ namespace ChessEngine.Engine
             Board.Game.Tiles[origin] = 0;
             //Board.CheckForCheck(Board.Game);
             //Board.Game.CheckChecking(Board.Game);
+            Board.Game.SwitchTurn();
         }
 
         public void ExecuteOnBoard(Board temp)

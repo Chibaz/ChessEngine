@@ -52,12 +52,13 @@ namespace ChessEngine.Engine
                     Tiles[16 * rank + file] = GetStartPiece(rank, file);
                 }
             }
+            WhosTurn = Logic.WhitePlayer;
         }
 
         //Used for getting which piece will be at the a specified tile at the start of a game
         public byte GetStartPiece(int rank, int file)
         {
-            byte piece = 0x88;
+            byte piece = 0x00;
 
             //Gets which piece is supposed to be at what position
             if (rank == 1 || rank == 6)
@@ -292,6 +293,18 @@ namespace ChessEngine.Engine
         }
 
         private static Board _board;
+
+        public void SwitchTurn()
+        {
+            if (WhosTurn.Equals(Logic.WhitePlayer))
+            {
+                WhosTurn = Logic.BlackPlayer;
+            }
+            else
+            {
+                WhosTurn = Logic.WhitePlayer;
+            }
+        }
     }
 }
 
