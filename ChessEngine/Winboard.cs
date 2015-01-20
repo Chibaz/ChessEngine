@@ -11,7 +11,7 @@ namespace ChessEngine.CommandLine
     class Winboard
     {
         private readonly Logic _ai = new Logic();
-
+        private byte _lastEnemyMove;
         public Winboard()
         {
             //Board board = Board.Game;
@@ -67,6 +67,7 @@ namespace ChessEngine.CommandLine
                     //Console.WriteLine("move e7e5");
                     IMove move = Decode(argument);
                     move.Execute();
+                    Board.Game.SwitchTurn();
                     Program.Logger.WriteLine(Board.Game.PrintBoard());
                     StartThinking();
                     break;
@@ -107,6 +108,10 @@ namespace ChessEngine.CommandLine
                     /*Evaluator eval = new Evaluator();
                     int e = eval.EvalFor(_board, _board.WhosTurn);*/
                     break;
+                case "perft":
+                    int perft = _ai.RunPerft(int.Parse(argument));
+                    Console.WriteLine("perft result: " + perft + " at depth " + argument);
+                    break;
             }
         }
 
@@ -117,7 +122,8 @@ namespace ChessEngine.CommandLine
 //            Program.Logger.WriteLine(test.origin + ":" + test.target);
             String algebraicMove = Encode(move);
             move.Execute();
-            Program.Logger.WriteLine(algebraicMove);
+            Board.Game.SwitchTurn();
+            Program.Logger.WriteLine("logic made move: " + algebraicMove + " after depth " + Logic.LastDepth);
             Console.WriteLine("move " + algebraicMove);
         }
 
@@ -127,12 +133,12 @@ namespace ChessEngine.CommandLine
             if (move is Move || move is EnPassant)
             {
                 Move moving = (Move)move;
-                moveNotation += ChessConverter.AlgStrings[moving.origin];
+                moveNotation += ChessConverter.AlgStrings[moving.Origin];
 //                if (moving.kill != null)
 //                {
 //                    moveNotation += "x";
 //                }
-                moveNotation += ChessConverter.AlgStrings[moving.target];
+                moveNotation += ChessConverter.AlgStrings[moving.Target];
 //                if (moving.IsCheck())
 //                {
 //                    moveNotation += "+";
@@ -151,13 +157,26 @@ namespace ChessEngine.CommandLine
             IMove move;
             if (input.Contains("O"))
             {
-                move = input == "O-O" ? new Castling(0, 0) : new Castling(0, 7);
+                if (Board.Game.WhosTurn == 0x08)
+                {
+                    move = input == "O-O" ? new Castling(0x0B, 0) : new Castling(0x0B, 7);
+                    _ai.LastMovedPiece = input == "O-O" ? (byte)0x72 : (byte)0x75;
+                }
+                else
+                {
+                    move = input == "O-O" ? new Castling(0x03, 0) : new Castling(0x03, 7);
+                    _ai.LastMovedPiece = input == "O-O" ? (byte)0x02 : (byte)0x05;
+                }
             }
             else
             {
                 Program.Logger.WriteLine(input + " rank: " + input.Substring(0, 2) + " file: " + input.Substring(2, 2));
-                move = new UserMove(input.Substring(0,2), input.Substring(2,2));
+                byte origin = (byte)Array.IndexOf(ChessConverter.AlgStrings, input.Substring(0, 2));
+                byte target = (byte)Array.IndexOf(ChessConverter.AlgStrings, input.Substring(2, 2));
+                move = new EnemyMove(origin, target);
+                _ai.LastMovedPiece = target;
             }
+
             return move;
         }
         public void SetFEN(string fen)

@@ -152,13 +152,13 @@ namespace ChessEngine.Engine
         {
             if (!(move is Move) && !(move is EnPassant)) return 0;
             var m = (Move)move;
-            if (m.kill != 0)
+            if (m.Kill != 0)
             {
                 /*
                     Console.WriteLine("at depth " + depth + " applied bonus/penalty");
                     Console.WriteLine("for " + m.Moving.Piece + " taking " + m.Killing.Piece + "\n");
                      * */
-                return ScoreTable.PieceValue(m.kill) / 10 * depth;
+                return ScoreTable.PieceValue(m.Kill) / 10 * depth;
             }
             return 0;
         }
