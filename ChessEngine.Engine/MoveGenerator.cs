@@ -579,7 +579,7 @@ namespace ChessEngine.Engine
         public IMove SacrificeCheck(byte lastMovedPiece)
         {
             List<IMove> sacrificeMoves = new List<IMove>();
-
+            return null;
         }
 
         public List<byte> SelfCaptureCheck(byte origin, byte piece)
@@ -604,6 +604,7 @@ namespace ChessEngine.Engine
                     target = (byte)(((0x70 & origin) + direction) + ((0x07 & origin) + 1));
                     if ((target & 0x88) == 0)
                     {
+                        /*
                         if (CheckForKill(newMove))
                         {
                             captureMoves.Add(newMove);
@@ -759,7 +760,7 @@ namespace ChessEngine.Engine
                             {
                                 rightBreak = true;
                             }
-                        }
+                        }*/
                     }
                 }
             }

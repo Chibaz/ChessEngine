@@ -18,6 +18,7 @@ namespace ChessEngine.Engine
         public static int LastDepth;
         public byte LastMovedPiece;
         private IMove[] _principalVariations, _lastVariations;
+        private Stack<IMove> _principalVar; 
         private readonly TimeSpan _timeAllowed = new TimeSpan(0,0,15);
         private readonly Stopwatch _time = new Stopwatch();
         private Boolean _running;
@@ -26,6 +27,7 @@ namespace ChessEngine.Engine
         {
             _mg = new MoveGenerator();
             _lastVariations = new IMove[]{null};
+            _principalVar = new Stack<IMove>();
             LastMovedPiece = 0xFF;
         }
 
@@ -50,7 +52,7 @@ namespace ChessEngine.Engine
                 //Console.WriteLine("performing best move");
                 //_evals = _score = _total = 0;
                 _time.Start();
-                IMove bestMove = null;
+                Stack<IMove> bestMove = null;
                 _depth = _perft = 0;
                 _running = true;
                 while (_running)
@@ -62,6 +64,7 @@ namespace ChessEngine.Engine
                     _principalVariations[_depth] = null;
                     DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, /*0,*/ out bestMove);
                     _lastVariations = _principalVariations;
+                    _principalVar = bestMove;
                     Console.WriteLine(_time.Elapsed + ": " + _depth + " " + _perft);
                 }
                 _time.Stop();
@@ -74,11 +77,11 @@ namespace ChessEngine.Engine
             return null;
         }
 
-        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, byte rPlayer, /*int bonus,*/ out IMove prioMove)
+        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, byte rPlayer, /*int bonus,*/ out Stack<IMove> prioMove)
         {
             //int newBonus;
             //Console.WriteLine("number of moves from last board: " + newMoves.Count + " at depth " + rDepth + " for player + " + rPlayer);
-            prioMove = null;
+            prioMove = new Stack<IMove>();
             if (_time.Elapsed > _timeAllowed)
             {
                 _running = false;
@@ -103,12 +106,16 @@ namespace ChessEngine.Engine
             {
                 _mg.SacrificeCheck(LastMovedPiece);
             }
-            if (_lastVariations[_lastVariations.Count()-rDepth] != null)
+            if (_principalVar.Count > 0)
             {
-                newMoves.Add(_lastVariations[_lastVariations.Count() - rDepth]);
-                _lastVariations[_lastVariations.Count() - rDepth] = null;
-                _perft -= 1;
+                newMoves.Add(_principalVar.Pop());
             }
+            //if (_lastVariations[_lastVariations.Count()-rDepth] != null)
+            //{
+            //    newMoves.Add(_lastVariations[_lastVariations.Count() - rDepth]);
+            //    _lastVariations[_lastVariations.Count() - rDepth] = null;
+            //    _perft -= 1;
+            //}
             newMoves.AddRange(_mg.GetAllMovesForPlayer(lastBoard, rPlayer));
             _perft += newMoves.Count;
             //Console.WriteLine(newMoves.Count);
@@ -141,11 +148,13 @@ namespace ChessEngine.Engine
                     if (v > alpha)
                     {
                         alpha = v;
-                        _principalVariations[rDepth - 1] = move;
+                        Stack<IMove> moveChain = prioMove;
+                        moveChain.Push(move);
+                        prioMove = moveChain;
+                        //_principalVariations[rDepth - 1] = move;
                         if (rDepth == _depth && _running)
                         {
                             Console.WriteLine("new best move " + v);
-                            prioMove = move;
                             _bestRootMove = move;
                         }
                     }
@@ -195,7 +204,10 @@ namespace ChessEngine.Engine
                     if (v < beta)
                     {
                         beta = v;
-                        _principalVariations[rDepth - 1] = move;
+                        Stack<IMove> moveChain = prioMove;
+                        moveChain.Push(move);
+                        prioMove = moveChain;
+                        //_principalVariations[rDepth - 1] = move;
                     }
                     if (alpha >= beta) //Stop if alpha is equal to or higher than beta, and prune the remainder
                     {

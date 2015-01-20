@@ -21,7 +21,7 @@ namespace ChessEngine.CommandLine
             Console.WriteLine("ChessEngine v{0}.{1} by Kasper Wind, Denmark", typeof(Program).Assembly.GetName().Version.Major, typeof(Program).Assembly.GetName().Version.Minor);
 
             //Make logger
-            string path = @"C:\Users\" + Environment.UserName + @"\Source\Repos\ChessEngine\LogFile.txt";
+            string path = @"C:\Users\" + Environment.UserName + @"\Source\ChessEngine\LogFile.txt";
             Logger = new StreamWriter(path, false);
             Logger.WriteLine("ChessEngine v{0}.{1} by Kasper Wind, Denmark",
                    typeof (Program).Assembly.GetName().Version.Major, typeof (Program).Assembly.GetName().Version.Minor);
