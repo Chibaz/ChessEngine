@@ -16,8 +16,7 @@ namespace ChessEngine.Engine
         public Boolean EndGame;
         public static byte Player;
         public static int LastDepth;
-        public byte LastMovedPiece;
-        private IMove[] _principalVariations, _lastVariations;
+        //private IMove[] _principalVariations, _lastVariations;
         private Stack<IMove> _principalVar; 
         private readonly TimeSpan _timeAllowed = new TimeSpan(0,0,15);
         private readonly Stopwatch _time = new Stopwatch();
@@ -26,9 +25,20 @@ namespace ChessEngine.Engine
         public Logic()
         {
             _mg = new MoveGenerator();
-            _lastVariations = new IMove[]{null};
             _principalVar = new Stack<IMove>();
-            LastMovedPiece = 0xFF;
+//            _lastVariations = new IMove[]{null};
+//            List<int> test2;
+//            TestStack(out test2);
+//            foreach (int t in test2)
+//            {
+//                Console.WriteLine(t);
+//            }
+//            Stack<int> test;
+//            TestStack(Int32.MinValue, 2, out test);
+//            while (test.Any())
+//            {
+//                Console.WriteLine(test.Pop());
+//            }
         }
 
 //        public void SetDepth(int depth)
@@ -52,23 +62,29 @@ namespace ChessEngine.Engine
                 //Console.WriteLine("performing best move");
                 //_evals = _score = _total = 0;
                 _time.Start();
-                Stack<IMove> bestMove = null;
                 _depth = _perft = 0;
                 _running = true;
+                _principalVar = new Stack<IMove>();
                 while (_running)
                 {
                 //Console.WriteLine(DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, /*0,*/ out bestMove));
                     _depth++;
                     _perft = 0;
-                    _principalVariations = new IMove[_depth+1];
-                    _principalVariations[_depth] = null;
-                    DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, /*0,*/ out bestMove);
-                    _lastVariations = _principalVariations;
-                    _principalVar = bestMove;
+//                    _principalVariations = new IMove[_lastVariations.Count()+1];
+//                    IMove principalMove;
+                    Stack<IMove> principalStack;
+                    DoAlphaBeta(Board.Game, _depth, Int32.MinValue, Int32.MaxValue, Player, 0, out principalStack);
+//                    _lastVariations = _principalVariations;
+                    _principalVar = principalStack;
+//                    while (_principalVar.Any())
+//                    {
+//                        Move next = (Move)_principalVar.Pop();
+//                        Console.WriteLine(next.Origin + " " + next.Target);
+//                    }
                     Console.WriteLine(_time.Elapsed + ": " + _depth + " " + _perft);
                 }
                 _time.Stop();
-                Console.WriteLine("finished after " + _time.Elapsed + " : " + _depth + " moves: " + _perft);
+                Console.WriteLine("finished after " + _time.Elapsed + " : " + (_depth-1));
                 LastDepth = _depth;
                 _time.Reset();
 
@@ -77,11 +93,11 @@ namespace ChessEngine.Engine
             return null;
         }
 
-        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, byte rPlayer, /*int bonus,*/ out Stack<IMove> prioMove)
+        public int DoAlphaBeta(Board lastBoard, int rDepth, int alpha, int beta, byte rPlayer, int bonus, out Stack<IMove> prioMove)
         {
-            //int newBonus;
             //Console.WriteLine("number of moves from last board: " + newMoves.Count + " at depth " + rDepth + " for player + " + rPlayer);
-            prioMove = new Stack<IMove>();
+            int newBonus = 0;
+            prioMove = null;
             if (_time.Elapsed > _timeAllowed)
             {
                 _running = false;
@@ -99,24 +115,31 @@ namespace ChessEngine.Engine
                 Console.WriteLine("total is " + (e + bonus));*/
                 //_evals++;
                 //Console.WriteLine("eval " + evals);
-                return e /*+ bonus*/;
+                return e + bonus;
             }
             List<IMove> newMoves = new List<IMove>();
-            if (LastMovedPiece != 0xFF)
+            if (lastBoard.LastMovedPiece != 0xFF)
             {
-                _mg.SacrificeCheck(LastMovedPiece);
+                newMoves.AddRange(_mg.SacrificeCheck(lastBoard));
             }
-            if (_principalVar.Count > 0)
+            if (newMoves.Count == 0)
             {
+                if(_principalVar.Any())
+                {
                 newMoves.Add(_principalVar.Pop());
+                }
+                newMoves.AddRange(_mg.GetAllMovesForPlayer(lastBoard, rPlayer));
+            } 
+//            if (_lastVariations[_lastVariations.Count()-rDepth] != null)
+//            {
+//                newMoves.Add(_lastVariations[_lastVariations.Count() - rDepth]);
+//                _lastVariations[_lastVariations.Count() - rDepth] = null;
+//                _perft -= 1;
+//            }
+            if (_depth >= 5 && rDepth == 1)
+            {
+                //Console.WriteLine("depth test");
             }
-            //if (_lastVariations[_lastVariations.Count()-rDepth] != null)
-            //{
-            //    newMoves.Add(_lastVariations[_lastVariations.Count() - rDepth]);
-            //    _lastVariations[_lastVariations.Count() - rDepth] = null;
-            //    _perft -= 1;
-            //}
-            newMoves.AddRange(_mg.GetAllMovesForPlayer(lastBoard, rPlayer));
             _perft += newMoves.Count;
             //Console.WriteLine(newMoves.Count);
             //_total += newMoves.Count;
@@ -126,32 +149,31 @@ namespace ChessEngine.Engine
                 foreach (IMove move in newMoves)
                 {
 //                    move.Execute();
+                    if (move is Move && rDepth == 1 && _depth == 5)
+                    {
+                        Move testMove = (Move)move;
+                        if (testMove.Kill != 0)
+                        {
+                            //Console.WriteLine("check eval");
+                        }
+                    }
                     Board newBoard = lastBoard.CloneBoard();
                     move.ExecuteOnBoard(newBoard);
-                    /*
-                    if (rDepth == 1)
-                    {
-                        Console.WriteLine("lastBoard was");
-                        foreach (var entry in lastBoard.tiles)
-                        {
-                            Console.Write(entry + " ");
-                        }
-                        Console.WriteLine("newBoard is");
-                        foreach (var entry in newBoard.tiles)
-                        {
-                            Console.Write(entry + " ");
-                        }
-                        Console.WriteLine();
-                    }*/
-                    //newBonus = bonus + Evaluation.EvaluateBonus(move, rDepth);
-                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, GetEnemy(), /*newBonus,*/ out prioMove); //Recursive call on possible methods
+                    Stack<IMove> nextMove;
+//                    newBonus = bonus + Evaluation.EvaluateBonus(move, rDepth);
+                    
+                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, GetEnemy(), newBonus, out nextMove); //Recursive call on possible methods
+                    Stack<IMove> moveChain = nextMove != null ? new Stack<IMove>(new Stack<IMove>(nextMove)) : new Stack<IMove>();
+                    moveChain.Push(move);
                     if (v > alpha)
                     {
                         alpha = v;
-                        Stack<IMove> moveChain = prioMove;
-                        moveChain.Push(move);
                         prioMove = moveChain;
-                        //_principalVariations[rDepth - 1] = move;
+//                        _lastVariations[_depth-1] = prioMove;
+//                        if (rDepth > 3)
+//                        {
+//                            Console.WriteLine("test");
+//                        }
                         if (rDepth == _depth && _running)
                         {
                             Console.WriteLine("new best move " + v);
@@ -174,40 +196,19 @@ namespace ChessEngine.Engine
 //                    move.Execute();
                     Board newBoard = lastBoard.CloneBoard();
                     move.ExecuteOnBoard(newBoard);
-                    /*
-                    if (rDepth == 1)
-                    {
-                        Console.WriteLine("lastBoard was");
-                        foreach (var entry in lastBoard.tiles)
-                        {
-                            Console.Write(entry + " ");
-                        }
-                        Console.WriteLine("newBoard is");
-                        foreach (var entry in newBoard.tiles)
-                        {
-                            Console.Write(entry + " ");
-                        }
-                        Console.WriteLine();
-                    }
-                    if (move is Move && ((Move)move).Killing.Position != null)
-                    {
-                        newBonus -= 100 * rDepth;
-                        Console.WriteLine("kill penalty");
-                        //Console.WriteLine("bonus of " + newBonus + " applied");
-                    }*/
-                    /*if (Evaluation.evaluateBonus(move, rDepth) != 0)
-                    {
-                        Console.WriteLine("increased bonus from " + bonus + " to " + newBonus);
-                    }*/
-                    //newBonus = bonus - Evaluation.EvaluateBonus(move, rDepth);
-                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, Player, /*newBonus,*/ out prioMove); //Recursive call on possible method                    
+                    Stack<IMove> nextMove;
+//                    newBonus = bonus - Evaluation.EvaluateBonus(move, rDepth);
+                    int v = DoAlphaBeta(newBoard, rDepth - 1, alpha, beta, Player, newBonus, out nextMove); //Recursive call on possible method
+                    Stack<IMove> moveChain = nextMove != null ? new Stack<IMove>(new Stack<IMove>(nextMove)) : new Stack<IMove>(); moveChain.Push(move);
                     if (v < beta)
                     {
                         beta = v;
-                        Stack<IMove> moveChain = prioMove;
-                        moveChain.Push(move);
                         prioMove = moveChain;
-                        //_principalVariations[rDepth - 1] = move;
+//                        _lastVariations[_depth-1] = prioMove;
+//                        if (rDepth > 3)
+//                        {
+//                            Console.WriteLine("test");
+//                        }
                     }
                     if (alpha >= beta) //Stop if alpha is equal to or higher than beta, and prune the remainder
                     {
@@ -218,6 +219,37 @@ namespace ChessEngine.Engine
                 }
                 return beta;
             }
+        }
+
+        private int test;
+
+        public void TestStack(/*int highest, int depth,*/ out List<int> stack)
+        {
+            stack = null;
+            if (test < 5) return;
+            
+            TestStack(out stack);
+            stack.Add(test++);
+//            stack = null;
+//            if (depth == 0)
+//            {
+//                return 99;
+//            }
+//            int[] root = {1, 2, 3, 4};
+//            int[] evals = {6, 7, 4, 5, 8, 3, 2, 1};
+//            int[] moves = depth == 1 ? root : evals;
+//            foreach (int move in moves)
+//            {
+//                int v = TestStack(move, depth - 1, out stack);
+//                if (v > highest)
+//                {
+//                    Stack<int> chain = stack;
+//                    chain.Push(move);
+//                    stack = chain;
+//                }
+//                return move;
+//            }
+//            return 0;
         }
 
         public void RunPerftTest(Board lastBoard, int depth, byte player)

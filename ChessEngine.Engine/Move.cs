@@ -56,6 +56,7 @@ namespace ChessEngine.Engine
             _kill = Board.Game.Tiles[_target];
             Board.Game.Tiles[_target] = _piece;
             Board.Game.Tiles[_origin] = 0;
+            Board.Game.LastMovedPiece = _target;
         }
 
         public void ExecuteOnBoard(Board temp)
@@ -63,6 +64,7 @@ namespace ChessEngine.Engine
             _kill = temp.Tiles[_target];
             temp.Tiles[_target] = _piece;
             temp.Tiles[_origin] = 0;
+            temp.LastMovedPiece = _target;
         }
 
         public void Undo()
@@ -100,6 +102,7 @@ namespace ChessEngine.Engine
             {
                 Board.Game.EnPassant = 0;
             }
+            Board.Game.LastMovedPiece = Target;
             //Board.CheckForCheck(Board.Game);
             //Board.Game.CheckChecking(Board.Game);
         }
@@ -112,14 +115,15 @@ namespace ChessEngine.Engine
             temp.Tiles[Origin] = 0;
             if ((Piece & 0x07) == 1 && (Origin & 0x70) - (Target & 0x70) == 32)
             {
-                Board.Game.EnPassant = Target;
+                temp.EnPassant = Target;
             }
             else
             {
-                Board.Game.EnPassant = 0;
+                temp.EnPassant = 0;
             }
             //Board.CheckForCheck(temp);
             //Board.Game.CheckChecking(temp);
+            temp.LastMovedPiece = Target;
         }
 
         public void Undo()
@@ -144,12 +148,14 @@ namespace ChessEngine.Engine
         {
             Board.Game.Tiles[Target] = 1;
             Board.Game.Tiles[Origin] = 0;
+            Board.Game.LastMovedPiece = Target;
         }
 
         public void ExecuteOnBoard(Board temp)
         {
             temp.Tiles[Target] = 1;
             temp.Tiles[Origin] = 0;
+            temp.LastMovedPiece = Target;
         }
 
         public void Undo()
@@ -161,86 +167,95 @@ namespace ChessEngine.Engine
 
     public class Castling : IMove
     {
-        public byte King, Rook;
+        private byte _kingOrigin, _rookOrigin;
+        private readonly byte _king;
+        private readonly byte _rook;
         public int RookFile;
-        private readonly int _kingTarget, _rookTarget;
+        private  int _kingTarget, _rookTarget;
 
-        public Castling(byte k, int rFile)
+        public Castling(byte kingOrigin, byte king, byte rookOrigin, byte rook)
         {
-            King = k;
-            RookFile = rFile;
-            if (RookFile == 0)
+            _kingOrigin = kingOrigin;
+            _rookOrigin = rookOrigin;
+            _king = king;
+            _rook = rook;
+            if ((_rookOrigin & 0x07) == 0x07)
             {
-                _kingTarget = 2;
-                _rookTarget = 3;
-                Rook = Board.Game.Tiles[0 + RookFile];
+                _rookTarget = _rookOrigin - 2;
+                _kingTarget = _kingOrigin + 2;
             }
             else
             {
-                _kingTarget = 6;
-                _rookTarget = 5;
-                Rook = Board.Game.Tiles[112 + RookFile];
+                _rookTarget = _rookOrigin + 3;
+                _kingTarget = _kingOrigin - 2;
             }
         }
 
         public void Execute()
         {
-            byte[] tiles = Board.Game.Tiles;
-            //Board.CheckForStuff(Board.Game, this);
-            if (Logic.Player == Logic.BlackPlayer)
-            {
-                tiles[112 + 4] = 0;
-                tiles[112 + RookFile] = 0;
-                tiles[112 + _rookTarget] = Rook;
-                tiles[112 + _kingTarget] = King;
-            }
-            else
-            {
-                tiles[0 + 4] = 0;
-                tiles[0 + RookFile] = 0;
-                tiles[(byte)(0 + _rookTarget)] = Rook;
-                tiles[(byte)(0 + _kingTarget)] = King;
-            }
+            Board.Game.Tiles[_kingOrigin] = 0;
+            Board.Game.Tiles[_rookOrigin] = 0;
+            Board.Game.Tiles[_kingTarget] = _king;
+            Board.Game.Tiles[_rookTarget] = _rook;
+            Board.Game.LastMovedPiece = (byte)_rookTarget;
+
             Board.Game.EnPassant = 0;
+            //Board.CheckForStuff(Board.Game, this);
+
+//            tiles[112 + 4] = 0;
+//                tiles[112 + RookFile] = 0;
+//                tiles[112 + _rookTarget] = _rook;
+//                tiles[112 + _kingTarget] = _king;
+//            }
+//            else
+//            {
+//                tiles[0 + 4] = 0;
+//                tiles[0 + RookFile] = 0;
+//                tiles[0 + _rookTarget] = _rook;
+//                tiles[0 + _kingTarget] = _king;
+//                Board.Game.LastMovedPiece = (byte)(0 + _rookTarget);
+//            }
+            
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            byte[] tiles = temp.Tiles;
+            temp.Tiles[_kingOrigin] = 0;
+            temp.Tiles[_rookOrigin] = 0;
+            temp.Tiles[_kingTarget] = _king;
+            temp.Tiles[_rookTarget] = _rook;
+            temp.LastMovedPiece = (byte)_rookTarget;
+
+            temp.EnPassant = 0;
             //Board.CheckForStuff(temp, this);
 
-            if (King * Logic.Player == 6)
-            {
-                tiles[(byte)(7 + _rookTarget)] = tiles[(byte)(7 + RookFile)];
-                tiles[(byte)(7 + _kingTarget)] = King;
-            }
-            else
-            {
-                tiles[(byte)(0 + _rookTarget)] = tiles[(byte)(0 + RookFile)];
-                tiles[(byte)(0 + _kingTarget)] = King;
-            }
-            tiles[(byte)(0 + RookFile)] = 0;
-            tiles[(byte)(0 + 4)] = 0;
+//            if (_king * Logic.Player == 6)
+//            {
+//                tiles[112 + 4] = 0;
+//                tiles[112 + RookFile] = 0;
+//                tiles[112 + _rookTarget] = _rook;
+//                tiles[112 + _kingTarget] = _king;
+//                temp.LastMovedPiece = (byte)(112 + _rookTarget);
+//            }
+//            else
+//            {
+//                tiles[0 + 4] = 0;
+//                tiles[0 + RookFile] = 0;
+//                tiles[0 + _rookTarget] = _rook;
+//                tiles[0 + _kingTarget] = _king;
+//                temp.LastMovedPiece = (byte)(0 + _rookTarget);
+//            }
+//            tiles[(byte)(0 + RookFile)] = 0;
+//            tiles[(byte)(0 + 4)] = 0;
             temp.EnPassant = 0;
         }
 
         public void Undo()
         {
-            byte[] tiles = Board.Game.Tiles;
-            if (Logic.Player == Logic.BlackPlayer)
-            {
-                tiles[112 + 4] = King;
-                tiles[112 + RookFile] = Rook;
-                tiles[112 + _rookTarget] = 0;
-                tiles[112 + _kingTarget] = 0;
-            }
-            else
-            {
-                tiles[0 + 4] = King;
-                tiles[0 + RookFile] = Rook;
-                tiles[0 + _rookTarget] = 0;
-                tiles[0 + _kingTarget] = 0;
-            }
+            Board.Game.Tiles[_kingOrigin] = _king;
+            Board.Game.Tiles[_rookOrigin] = _rook;
+            Board.Game.Tiles[_kingTarget] = 0;
+            Board.Game.Tiles[_rookTarget] = 0;
         }
 
         public string GetSide()

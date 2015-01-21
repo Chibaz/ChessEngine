@@ -6,7 +6,7 @@ namespace ChessEngine.Engine
     {
         private static byte[] _eBoard;
         public static Boolean _endgame;
-        private static int _losing;
+        private static int _losing = 0xFF;
 
         public static int Evaluate(Board toEvaluate
             /*, int depth, int lastAI, int lastPlayer, out int wPieces, out int bPieces*/)
@@ -68,14 +68,14 @@ namespace ChessEngine.Engine
                 {
                     byte thisPiece = _eBoard[16*rank + file];
                     //pieces += ScoreTable.PieceValue(thisPiece);
-                    if ((player == 0x00 && thisPiece < 0x08) || (player == 0x08 && thisPiece > 0x08)) continue;
+                    if ((player != 0x00 || thisPiece > 0x08) && (player != 0x08 || thisPiece < 0x08)) continue;
                     switch (thisPiece & 0x07)
                     {
                         case 0x01:
-                            score += sTable.Pawn[16* rank + file];
+                            score += sTable.Pawn[16*rank + file];
                             break;
                         case 0x02:
-                            if (_losing == 0)
+                            if (_losing != player)
                             {
                                 score += sTable.Knight[16*rank + file];
                             }
@@ -90,19 +90,19 @@ namespace ChessEngine.Engine
                             score += 10000;
                             break;
                         case 0x05:
-                            if (_losing == 0)
+                            if (_losing != player)
                             {
                                 score += sTable.Bishop[16*rank + file];
                             }
                             break;
                         case 0x06:
-                            if (_losing == 0)
+                            if (_losing != player)
                             {
                                 score += sTable.Rook[16*rank + file];
                             }
                             break;
                         case 0x07:
-                            if (_losing == 0)
+                            if (_losing != player)
                             {
                                 score += sTable.Queen[16*rank + file];
                             }
@@ -151,14 +151,18 @@ namespace ChessEngine.Engine
         public static int EvaluateBonus(IMove move, int depth)
         {
             if (!(move is Move) && !(move is EnPassant)) return 0;
-            var m = (Move)move;
+            if (move is EnPassant)
+            {
+                return ScoreTable.PieceValue(0x01) / 10 * depth;
+            }
+            Move m = (Move)move;
             if (m.Kill != 0)
             {
                 /*
                     Console.WriteLine("at depth " + depth + " applied bonus/penalty");
                     Console.WriteLine("for " + m.Moving.Piece + " taking " + m.Killing.Piece + "\n");
                      * */
-                return ScoreTable.PieceValue(m.Kill) / 10 * depth;
+                return ScoreTable.PieceValue((m.Kill & 0x07)) / 10 * depth;
             }
             return 0;
         }

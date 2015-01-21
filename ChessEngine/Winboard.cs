@@ -157,15 +157,13 @@ namespace ChessEngine.CommandLine
             IMove move;
             if (input.Contains("O"))
             {
-                if (Board.Game.WhosTurn == 0x08)
+                if (Board.Game.WhosTurn == Logic.BlackPlayer)
                 {
-                    move = input == "O-O" ? new Castling(0x0B, 0) : new Castling(0x0B, 7);
-                    _ai.LastMovedPiece = input == "O-O" ? (byte)0x72 : (byte)0x75;
+                    move = input == "O-O" ? new Castling(0x74, 0x0B, 0x77, 0x0E) : new Castling(0x74, 0x0B, 0x70, 0x0E);
                 }
                 else
                 {
-                    move = input == "O-O" ? new Castling(0x03, 0) : new Castling(0x03, 7);
-                    _ai.LastMovedPiece = input == "O-O" ? (byte)0x02 : (byte)0x05;
+                    move = input == "O-O" ? new Castling(0x04, 0x03, 0x07, 0x06) : new Castling(0x04, 0x03, 0x00, 0x06);
                 }
             }
             else
@@ -174,7 +172,6 @@ namespace ChessEngine.CommandLine
                 byte origin = (byte)Array.IndexOf(ChessConverter.AlgStrings, input.Substring(0, 2));
                 byte target = (byte)Array.IndexOf(ChessConverter.AlgStrings, input.Substring(2, 2));
                 move = new EnemyMove(origin, target);
-                _ai.LastMovedPiece = target;
             }
 
             return move;

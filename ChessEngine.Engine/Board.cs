@@ -29,6 +29,7 @@ namespace ChessEngine.Engine
         public byte WhosTurn;
         public int Mate;
         public int MoveCount, FiftyMove;
+        public byte LastMovedPiece;
         //public static int aiColor = 1;
 
         public Board()
@@ -44,56 +45,58 @@ namespace ChessEngine.Engine
             WhiteKingCastle = WhiteQueenCastle = BlackKingCastle = BlackQueenCastle = true;
             aiCheck = playerCheck = false;
             Mate = 0;
-            for(int rank = 0; rank < 8; rank++) 
-            {
-                for (int file = 0; file < 8; file++)
-                {
-                    //tiles[rank, file] = GetStartPiece(rank, file);
-                    Tiles[16 * rank + file] = GetStartPiece(rank, file);
-                }
-            }
+            Tiles = StartBoard;
+//            for(int rank = 0; rank < 8; rank++) 
+//            {
+//                for (int file = 0; file < 8; file++)
+//                {
+//                    //tiles[rank, file] = GetStartPiece(rank, file);
+//                    Tiles[16 * rank + file] = GetStartPiece(rank, file);
+//                }
+//            }
+            LastMovedPiece = 0xFF;
             WhosTurn = Logic.WhitePlayer;
         }
 
-        //Used for getting which piece will be at the a specified tile at the start of a game
-        public byte GetStartPiece(int rank, int file)
-        {
-            byte piece = 0x00;
-
-            //Gets which piece is supposed to be at what position
-            if (rank == 1 || rank == 6)
-            {
-                piece = 0x01;
-            }
-            else if(rank == 0 || rank == 7)
-            {
-                switch (file)
-                {
-                    case 0: case 7:
-                        piece = 0x06;
-                        break;
-                    case 1: case 6:
-                        piece = 0x02;
-                        break;
-                    case 2: case 5:
-                        piece = 0x05;
-                        break;
-                    case 3:
-                        piece = 0x07;
-                        break;
-                    case 4:
-                        piece = 0x03;
-                        break;
-                }
-            }
-
-            if (rank == 6 || rank == 7)
-            {
-                piece += 0x08;
-            }
-
-            return piece;
-        }
+//        //Used for getting which piece will be at the a specified tile at the start of a game
+//        public byte GetStartPiece(int rank, int file)
+//        {
+//            byte piece = 0x00;
+//
+//            //Gets which piece is supposed to be at what position
+//            if (rank == 1 || rank == 6)
+//            {
+//                piece = 0x01;
+//            }
+//            else if(rank == 0 || rank == 7)
+//            {
+//                switch (file)
+//                {
+//                    case 0: case 7:
+//                        piece = 0x06;
+//                        break;
+//                    case 1: case 6:
+//                        piece = 0x02;
+//                        break;
+//                    case 2: case 5:
+//                        piece = 0x05;
+//                        break;
+//                    case 3:
+//                        piece = 0x07;
+//                        break;
+//                    case 4:
+//                        piece = 0x03;
+//                        break;
+//                }
+//            }
+//
+//            if (rank == 6 || rank == 7)
+//            {
+//                piece += 0x08;
+//            }
+//
+//            return piece;
+//        }
 
         
         public byte GetSpecificTile(int rank, int file)
@@ -305,6 +308,19 @@ namespace ChessEngine.Engine
                 WhosTurn = Logic.WhitePlayer;
             }
         }
+
+        public byte[] StartBoard =
+        {
+            6, 2, 5, 7, 3, 5, 2, 6,             0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 1, 1, 1, 1,             0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,             0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,             0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,             0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,             0, 0, 0, 0, 0, 0, 0, 0,
+            9, 9, 9, 9, 9, 9, 9, 9,             0, 0, 0, 0, 0, 0, 0, 0,
+            14, 10, 13, 15, 11, 13, 10, 14,     0, 0, 0, 0, 0, 0, 0, 0
+
+        };
     }
 }
 
