@@ -19,11 +19,9 @@ namespace ChessEngine.Engine
             captureMoves = new List<IMove>();
             if (_moveBoard.Mate != 0)
             {
-                Console.WriteLine("hit leaf");
+                Console.WriteLine("hit mate");
                 return normalMoves;
-            }/*else if(Board.CheckForCheck(moveBoard, player){
-                return allMoves;
-            }*/
+            }
             for (int h = 0; h < 8; h++)
             {
                 for (int w = 0; w < 8; w++)
@@ -34,11 +32,6 @@ namespace ChessEngine.Engine
                     }
                 }
             }
-            if (captureMoves.Count > 3)
-            {
-                //Console.WriteLine("capture test");
-            }
-            //Console.WriteLine("number of moves for board is :" + allMoves.Count);
             List<IMove> allMoves = new List<IMove>();
             allMoves.AddRange(captureMoves);
             allMoves.AddRange(normalMoves);
@@ -98,12 +91,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                         upperBreak = true;
                     }
                     else
@@ -119,12 +112,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                         lowerBreak = true;
                     }
                     else
@@ -140,13 +133,13 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
 
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                         leftBreak = true;
                     }
                     else
@@ -162,12 +155,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //straightMoves.Add(newMove);
+                        straightMoves.Add(newMove);
                         rightBreak = true;
                     }
                     else
@@ -176,89 +169,8 @@ namespace ChessEngine.Engine
                     }
                 }
             }
-            //Console.WriteLine("from " + origin + " piece: " + _moveBoard.Tiles[origin] + " has " + straightMoves.Count);
             return straightMoves;
         }
-
-        //    do
-        //    {
-        //    } while ((target & 0x88) == 0);
-
-        //    for (var y = origin[0] + 1; y < 8; y++) //Vertical lower
-        //    {
-        //        newMove = new Move(origin, _moveBoard.GetSpecificTile())
-        //        {
-        //            Moving = { Target = new[] { y, origin[1] } }
-        //        };
-        //        if (_moveBoard.tiles[newMove.Moving.Target[0], newMove.Moving.Target[1]] == 0)
-        //        {
-        //            straightMoves.Add(newMove);
-        //        }
-        //        else
-        //        {
-        //            if (CheckForKill(newMove))
-        //            {
-        //                straightMoves.Add(newMove);
-        //            }
-        //            break;
-        //        }
-        //    }
-        //    for (var y = origin[0] - 1; y >= 0; y--) //Vertical upper
-        //    {
-        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-        //        var target = new[] { y, origin[1] };
-        //        newMove.Moving.Target = target;
-        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
-        //        {
-        //            straightMoves.Add(newMove);
-        //        }
-        //        else
-        //        {
-        //            if (CheckForKill(newMove))
-        //            {
-        //                straightMoves.Add(newMove);
-        //            }
-        //            break;
-        //        }
-        //    }
-        //    for (var x = origin[1] + 1; x < 8; x++) //Horizontal right
-        //    {
-        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-        //        var target = new[] { origin[0], x };
-        //        newMove.Moving.Target = target;
-        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
-        //        {
-        //            straightMoves.Add(newMove);
-        //        }
-        //        else
-        //        {
-        //            if (CheckForKill(newMove))
-        //            {
-        //                straightMoves.Add(newMove);
-        //            }
-        //            break;
-        //        }
-        //    }
-        //    for (var x = origin[1] - 1; x >= 0; x--) //Horizontal left
-        //    {
-        //        newMove = new Move(origin, _moveBoard.tiles[origin[0], origin[1]]);
-        //        var target = new[] { origin[0], x };
-        //        newMove.Moving.Target = target;
-        //        if (_moveBoard.tiles[target[0], target[1]] == 0)
-        //        {
-        //            straightMoves.Add(newMove);
-        //        }
-        //        else
-        //        {
-        //            if (CheckForKill(newMove))
-        //            {
-        //                straightMoves.Add(newMove);
-        //            }
-        //            break;
-        //        }
-        //    }
-        //    return straightMoves;
-        //}
 
         public List<IMove> GetDiagonalMoves(byte origin)
         {
@@ -276,12 +188,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                         upperRight = true;
                     }
                     else
@@ -297,12 +209,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                         upperLeft = true;
                     }
                     else
@@ -318,12 +230,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                         lowerRight = true;
                     }
                     else
@@ -339,12 +251,12 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //diagonalMoves.Add(newMove);
+                        diagonalMoves.Add(newMove);
                         lowerLeft = true;
                     }
                     else
@@ -353,7 +265,6 @@ namespace ChessEngine.Engine
                     }
                 }
             }
-            //Console.WriteLine("from " + origin + " piece: " + _moveBoard.Tiles[origin] + " has " + diagonalMoves.Count);
             return diagonalMoves;
         }
 
@@ -363,10 +274,6 @@ namespace ChessEngine.Engine
             string[] moves = null;
             byte piece = _moveBoard.Tiles[origin];
             var absMoves = new List<IMove>();
-//            if (origin == 85)
-//            {
-//                Console.WriteLine("capture test");
-//            }
             switch (piece & 0x07)
             {
                 case 0x02:
@@ -387,16 +294,15 @@ namespace ChessEngine.Engine
                     if (_moveBoard.Tiles[target] == 0)
                     {
                         normalMoves.Add(newMove);
-                        //absMoves.Add(newMove);
+                        absMoves.Add(newMove);
                     }
                     else if (CheckForKill(newMove))
                     {
                         captureMoves.Add(newMove);
-                        //absMoves.Add(newMove);
+                        absMoves.Add(newMove);
                     }
                 }
             }
-            //Console.WriteLine("from " + origin + " piece: " + _moveBoard.Tiles[origin] + " has " + absMoves.Count);
             return absMoves;
         }
 
@@ -426,19 +332,19 @@ namespace ChessEngine.Engine
                 {
                     normalMoves.Add(newMove);
                     CheckForPromotion(newMove);
-                    //pawnMoves.Add(newMove);
+                    pawnMoves.Add(newMove);
 
                     //Move ahead two spaces from start
                     int rank = (origin & 0x70)/16;
                     if ((rank == 6 && (piece & 0x08) == _cPlayer) || (rank == 1 && (piece & 0x00) == _cPlayer))
                     {
-                        target = (byte) (2*direction + origin /*(0x70 & origin) + (0x07 & origin)*/);
+                        target = (byte) (2*direction + origin);
                         if ((target & 0x88) == 0 && _moveBoard.Tiles[target] == 0)
                         {
                             newMove = new Move(origin, piece);
                             newMove.Target = target;
                             normalMoves.Add(newMove);
-                            //pawnMoves.Add(newMove);
+                            pawnMoves.Add(newMove);
                         }
                     }
                 }
@@ -452,11 +358,8 @@ namespace ChessEngine.Engine
                 if (CheckForKill(newMove))
                 {
                     captureMoves.Add(newMove);
-                    //pawnMoves.Add(newMove);
+                    pawnMoves.Add(newMove);
                 }
-                //newMove.Killing = new TakenPiece(newMove.Moving.Target, piece * -1);
-                //newMove.Killing.Position = new int[] { origin[0] - direction, origin[1] + 1 };
-                //newMove.Killing.Piece = moveBoard.tiles[origin[0] - direction, origin[1] + 1];
                 CheckForPromotion(newMove);
             }
             //Kill piece left
@@ -468,12 +371,8 @@ namespace ChessEngine.Engine
                 if (CheckForKill(newMove))
                 {
                     captureMoves.Add(newMove);
-                    //pawnMoves.Add(newMove);
+                    pawnMoves.Add(newMove);
                 }
-//                newMove = new Move(origin, piece) { Moving = { Target = new[] { origin[0] - direction, origin[1] - 1 } } };
-//                newMove.Killing = new TakenPiece(newMove.Moving.Target, piece * -1);
-                //newMove.Killing.Position = new int[] { origin[0] - direction, origin[1] - 1 };
-                //newMove.Killing.Piece = Board.Game.tiles[origin[0] - direction, origin[1] - 1];
                 CheckForPromotion(newMove);
             }
 
@@ -483,6 +382,7 @@ namespace ChessEngine.Engine
                 if ((_moveBoard.Tiles[_moveBoard.EnPassant] & 0x08) != _cPlayer && (origin & 0x70) == 4 * direction && ((origin & 0x07) == (_moveBoard.EnPassant & 0x07) + 1 || (origin & 0x07) == (_moveBoard.EnPassant & 0x07) - 1))
                 {
                     EnPassant ep = new EnPassant(origin, _moveBoard.EnPassant);
+                    captureMoves.Add(ep);
                     pawnMoves.Add(ep);
                 }
             }    
@@ -582,9 +482,6 @@ namespace ChessEngine.Engine
             byte piece = _moveBoard.Tiles[move.Target];
             if (piece == 0 || ((piece & 0x08) == (move.Piece & 0x08))) return false;
             move.Kill = piece;
-            //Console.WriteLine("can take " + move.Killing.Piece + " at " + move.Killing.Position[0] + "," + move.Killing.Position[1]);
-            //move.Killing.Position = move.Moving.Target;
-            //move.Killing.Piece = move.Moving.Piece;
             return true;
         }
 
@@ -598,7 +495,6 @@ namespace ChessEngine.Engine
                 Move captureMove = new Move(captureOrigin, board.Tiles[captureOrigin]);
                 captureMove.Kill = position;
                 sacrificeMoves.Add(captureMove);
-                //Console.WriteLine("last moved can be captured from " + captureOrigin + " with a " + board.Tiles[captureOrigin]);
             }
             return sacrificeMoves;
         }

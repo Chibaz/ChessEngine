@@ -8,14 +8,12 @@ namespace ChessEngine.Engine
         public static Boolean _endgame;
         private static int _losing = 0xFF;
 
-        public static int Evaluate(Board toEvaluate
-            /*, int depth, int lastAI, int lastPlayer, out int wPieces, out int bPieces*/)
+        public static int Evaluate(Board toEvaluate)
         {
             _eBoard = toEvaluate.Tiles;
             int logicPieces = CalculatePieceScore(Logic.Player);
-            //Console.WriteLine("logic piece score is " + logicPieces + " endgame? " + (logicPieces < 600));
             int enemyPieces = CalculatePieceScore(Logic.GetEnemy());
-            //Console.WriteLine("enemy piece score is " + enemyPieces + " endgame? " + (enemyPieces < 600));
+
             if (logicPieces <= 600 || enemyPieces <= 600)
             {
                 _endgame = true;
@@ -122,8 +120,6 @@ namespace ChessEngine.Engine
                 {
                     byte piece = _eBoard[16*rank + file];
 
-//                    Console.WriteLine(((player == 0) && (piece > 8)));
-//                    Console.WriteLine(((player == 8) && (piece < 8)));
                     if(((player == 0) && (piece > 8)) ||((player == 8) && (piece < 8))) continue;
                     switch (piece & 0x07)
                     {
@@ -158,10 +154,6 @@ namespace ChessEngine.Engine
             Move m = (Move)move;
             if (m.Kill != 0)
             {
-                /*
-                    Console.WriteLine("at depth " + depth + " applied bonus/penalty");
-                    Console.WriteLine("for " + m.Moving.Piece + " taking " + m.Killing.Piece + "\n");
-                     * */
                 return ScoreTable.PieceValue((m.Kill & 0x07)) / 10 * depth;
             }
             return 0;
@@ -222,18 +214,6 @@ namespace ChessEngine.Engine
             0, 0, 0, 0, 0, 0, 0, 0,         999, 0, 0, 0, 0, 0, 0, 0
         };
 
-//        private readonly int[,] _pawn =
-//        {
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {7, 7, 13, 23, 26, 13, 7, 7},
-//            {-2, -2, 4, 12, 15, 4, -2, -2},
-//            {2, -3, 2, 9, 11, 2, -3, -3},
-//            {1, 2, 0, 6, 9, 0, -4, -4},
-//            {-4, -4, 2, 4, 7, 0, -4, -4},
-//            {-1, -1, 1, 5, 6, 1, -1, -1},
-//            {0, 0, 0, 0, 0, 0, 0, 0}
-//        };
-
         private readonly int[] _rook =
         {
             9, 9, 11, 10, 11, 9, 9, 9,      999, 0, 0, 0, 0, 0, 0, 0,
@@ -243,20 +223,8 @@ namespace ChessEngine.Engine
             6, 6, 5, 6, 6, 5, 6, 6,         999, 0, 0, 0, 0, 0, 0, 0,
             4, 5, 5, 5, 5, 5, 5, 4,         999, 0, 0, 0, 0, 0, 0, 0,
             0, 3, 3, 5, 5, 3, 3, 0,         999, 0, 0, 0, 0, 0, 0, 0,
-            0, -2, 0, 5, 5, 3, 0, 0,        999, 0, 0, 0, 0, 0, 0, 0
+            0, -2, 0, 5, 5, 3, -2, 0,        999, 0, 0, 0, 0, 0, 0, 0
         };
-
-//        private readonly int[,] _rook =
-//        {
-//            {9, 9, 11, 10, 11, 9, 9, 9},
-//            {4, 6, 7, 9, 9, 7, 6, 4},
-//            {9, 10, 10, 11, 11, 10, 10, 9},
-//            {8, 8, 8, 9, 9, 8, 8, 8},
-//            {6, 6, 5, 6, 6, 5, 6, 6},
-//            {4, 5, 5, 5, 5, 5, 5, 4},
-//            {0, 3, 3, 5, 5, 3, 3, 0},
-//            {0, -2, 0, 5, 5, 3, 0, 0}
-//        };
 
         private readonly int[] _knight =
         {
@@ -270,18 +238,6 @@ namespace ChessEngine.Engine
             -7, -5, -4, -2, -2, -4, -5, -7, 999, 0, 0, 0, 0, 0, 0, 0
         };
 
-//        private readonly int[,] _knight =
-//        {
-//            {-2, 2, 7, 9, 9, 7, 2, -2},
-//            {1, 4, 12, 13, 13, 12, 4, 1},
-//            {5, 11, 18, 19, 19, 18, 11, 5},
-//            {3, 10, 14, 14, 14, 14, 10, 3},
-//            {0, 5, 8, 9, 9, 8, 5, 0},
-//            {-3, 1, 3, 4, 4, 3, 1, -3},
-//            {-5, -3, -1, 0, 0, -1, -3, -5},
-//            {-7, -5, -4, -2, -2, -4, -5, -7}
-//        };
-
         private readonly int[] _bishop =
         {
             2, 3, 4, 4, 4, 4, 3, 2,     999, 0, 0, 0, 0, 0, 0, 0,
@@ -293,18 +249,6 @@ namespace ChessEngine.Engine
             5, 5, 5, 3, 3, 5, 5, 5,     999, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,     999, 0, 0, 0, 0, 0, 0, 0
         };
-
-//        private readonly int[,] _bishop =
-//        {
-//            {2, 3, 4, 4, 4, 4, 3, 2},
-//            {4, 7, 7, 7, 7, 7, 7, 4},
-//            {3, 5, 6, 6, 6, 6, 5, 3},
-//            {3, 5, 7, 7, 7, 7, 5, 3},
-//            {4, 5, 6, 8, 8, 6, 5, 4},
-//            {4, 5, 5, -2, -2, 5, 5, 4},
-//            {5, 5, 5, 3, 3, 5, 5, 5},
-//            {0, 0, 0, 0, 0, 0, 0, 0}
-//        };
 
         private readonly int[] _queen =
         {
@@ -318,18 +262,6 @@ namespace ChessEngine.Engine
             0, 0, 0, 0, 0, 0, 0, 0,     999, 0, 0, 0, 0, 0, 0, 0
         };
 
-//        private readonly int[,] _queen =
-//        {
-//            {2, 3, 4, 3, 4, 3, 3, 2},
-//            {2, 3, 4, 4, 4, 4, 3, 2},
-//            {3, 4, 4, 4, 4, 4, 4, 3},
-//            {3, 3, 4, 4, 4, 4, 3, 3},
-//            {2, 3, 3, 4, 4, 3, 3, 2},
-//            {2, 2, 2, 3, 3, 2, 2, 2},
-//            {2, 2, 2, 2, 2, 2, 2, 2},
-//            {0, 0, 0, 0, 0, 0, 0, 0}
-//        };
-
         private readonly int[] _king =
         {
             0, 0, 0, 0, 0, 0, 0, 0,     999, 0, 0, 0, 0, 0, 0, 0,
@@ -342,18 +274,6 @@ namespace ChessEngine.Engine
             0, 0, 0, 0, 0, 0, 15, 0,    999, 0, 0, 0, 0, 0, 0, 0,
         };
 
-//        private readonly int[,] _king =
-//        {
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 0, 0},
-//            {0, 0, 0, 0, 0, 0, 15, 0}
-//        };
-
         private readonly int[] _endKing =
         {
             -3, -3, -3, -3, -3, -3, -3, -3, 999, 0, 0, 0, 0, 0, 0, 0,
@@ -365,18 +285,6 @@ namespace ChessEngine.Engine
             -3, -2, -2, -2, -2, -2, -2, -3, 999, 0, 0, 0, 0, 0, 0, 0,
             -3, -3, -3, -3, -3, -3, -3, -3, 999, 0, 0, 0, 0, 0, 0, 0,
         };
-
-//        private readonly int[,] _endKing =
-//        {
-//            {-3, -3, -3, -3, -3, -3, -3, -3},
-//            {-3, -2, -2, -2, -2, -2, -2, -3},
-//            {-3, -2, -1, -1, -1, -1, -2, -3},
-//            {-3, -2, -1, 0, 0, -1, -2, -3},
-//            {-3, -2, -1, 0, 0, -1, -2, -3},
-//            {-3, -2, -1, -1, -1, -1, -2, -3},
-//            {-3, -2, -2, -2, -2, -2, -2, -3},
-//            {-3, -3, -3, -3, -3, -3, -3, -3}
-//        };
 
         public override int[] Pawn
         {

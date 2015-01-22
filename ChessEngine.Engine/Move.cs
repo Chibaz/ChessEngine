@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using ChessEngine;
-
-namespace ChessEngine.Engine
+﻿namespace ChessEngine.Engine
 {
     public interface IMove
     {
@@ -10,32 +6,6 @@ namespace ChessEngine.Engine
         void ExecuteOnBoard(Board temp);
         void Undo();
     }
-
-//    public struct MovingPiece
-//    {
-//        public byte Origin;
-//        public byte Target;
-//        public int Piece;
-//
-//        public MovingPiece(byte origin, byte target, int piece)
-//        {
-//            Origin = origin;
-//            Target = target;
-//            Piece = piece;
-//        }
-//    }
-//
-//    public struct TakenPiece
-//    {
-//        public byte Position;
-//        public int Piece;
-//
-//        public TakenPiece(byte position, int piece)
-//        {
-//            Position = position;
-//            Piece = piece;
-//        }
-//    }
 
     public class EnemyMove : IMove
     {
@@ -90,8 +60,6 @@ namespace ChessEngine.Engine
 
         public void Execute()
         {
-            //Board.CheckForStuff(Board.Game, this);
-            //kill = Board.Game.Tiles[target];
             Board.Game.Tiles[Target] = Piece;
             Board.Game.Tiles[Origin] = 0;
             if ((Piece & 0x07) == 1 && (Origin & 0x70) - (Target & 0x70) == 32)
@@ -103,14 +71,10 @@ namespace ChessEngine.Engine
                 Board.Game.EnPassant = 0;
             }
             Board.Game.LastMovedPiece = Target;
-            //Board.CheckForCheck(Board.Game);
-            //Board.Game.CheckChecking(Board.Game);
         }
 
         public void ExecuteOnBoard(Board temp)
         {
-            //Board.CheckForStuff(temp, this);
-            //kill = temp.Tiles[target];
             temp.Tiles[Target] = Piece;
             temp.Tiles[Origin] = 0;
             if ((Piece & 0x07) == 1 && (Origin & 0x70) - (Target & 0x70) == 32)
@@ -121,8 +85,6 @@ namespace ChessEngine.Engine
             {
                 temp.EnPassant = 0;
             }
-            //Board.CheckForCheck(temp);
-            //Board.Game.CheckChecking(temp);
             temp.LastMovedPiece = Target;
         }
 
@@ -167,11 +129,13 @@ namespace ChessEngine.Engine
 
     public class Castling : IMove
     {
-        private byte _kingOrigin, _rookOrigin;
+        private readonly byte _kingOrigin;
+        private readonly byte _rookOrigin;
+        private readonly int _kingTarget;
+        private readonly int _rookTarget;
         private readonly byte _king;
         private readonly byte _rook;
         public int RookFile;
-        private  int _kingTarget, _rookTarget;
 
         public Castling(byte kingOrigin, byte king, byte rookOrigin, byte rook)
         {
@@ -200,22 +164,6 @@ namespace ChessEngine.Engine
             Board.Game.LastMovedPiece = (byte)_rookTarget;
 
             Board.Game.EnPassant = 0;
-            //Board.CheckForStuff(Board.Game, this);
-
-//            tiles[112 + 4] = 0;
-//                tiles[112 + RookFile] = 0;
-//                tiles[112 + _rookTarget] = _rook;
-//                tiles[112 + _kingTarget] = _king;
-//            }
-//            else
-//            {
-//                tiles[0 + 4] = 0;
-//                tiles[0 + RookFile] = 0;
-//                tiles[0 + _rookTarget] = _rook;
-//                tiles[0 + _kingTarget] = _king;
-//                Board.Game.LastMovedPiece = (byte)(0 + _rookTarget);
-//            }
-            
         }
 
         public void ExecuteOnBoard(Board temp)
@@ -226,27 +174,6 @@ namespace ChessEngine.Engine
             temp.Tiles[_rookTarget] = _rook;
             temp.LastMovedPiece = (byte)_rookTarget;
 
-            temp.EnPassant = 0;
-            //Board.CheckForStuff(temp, this);
-
-//            if (_king * Logic.Player == 6)
-//            {
-//                tiles[112 + 4] = 0;
-//                tiles[112 + RookFile] = 0;
-//                tiles[112 + _rookTarget] = _rook;
-//                tiles[112 + _kingTarget] = _king;
-//                temp.LastMovedPiece = (byte)(112 + _rookTarget);
-//            }
-//            else
-//            {
-//                tiles[0 + 4] = 0;
-//                tiles[0 + RookFile] = 0;
-//                tiles[0 + _rookTarget] = _rook;
-//                tiles[0 + _kingTarget] = _king;
-//                temp.LastMovedPiece = (byte)(0 + _rookTarget);
-//            }
-//            tiles[(byte)(0 + RookFile)] = 0;
-//            tiles[(byte)(0 + 4)] = 0;
             temp.EnPassant = 0;
         }
 

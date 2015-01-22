@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ChessEngine.Engine;
 
 namespace ChessEngine.CommandLine
@@ -11,7 +8,7 @@ namespace ChessEngine.CommandLine
     class Winboard
     {
         private readonly Logic _ai = new Logic();
-        private byte _lastEnemyMove;
+
         public Winboard()
         {
             //Board board = Board.Game;
@@ -49,7 +46,6 @@ namespace ChessEngine.CommandLine
                     Console.WriteLine("feature done=1");
                     break;
                 case "new":
-                    //_board.FENCurrent = new FEN(FEN.FENStart);
                     Board.Game.ResetGame();
                     Logic.Player = Logic.BlackPlayer;
                     break;
@@ -61,10 +57,9 @@ namespace ChessEngine.CommandLine
                     StartThinking();
                     break;
                 case "time":
-                    /*_timeLeft = TimeSpan.FromMilliseconds(int.Parse(argument) * 10);*/
+
                     break;
                 case "usermove":
-                    //Console.WriteLine("move e7e5");
                     IMove move = Decode(argument);
                     move.Execute();
                     Board.Game.SwitchTurn();
@@ -72,8 +67,7 @@ namespace ChessEngine.CommandLine
                     StartThinking();
                     break;
                 case "?":
-                    //implement later
-                    //player.ForceMove();
+                    _ai.Thinking = false;
                     //Move now. If your engine is thinking, it should move immediately; otherwise, the command should be ignored (treated as a no-op).
                     break;
                 case "draw":
@@ -81,32 +75,26 @@ namespace ChessEngine.CommandLine
                     //If you're playing on ICS, it's possible for the draw offer to have been withdrawn by the time you accept it, so don't assume the game is over because you accept a draw offer. Continue playing until xboard tells you the game is over. See also "offer draw" below.
                     break;
                 case "setboard":
-                    //_board.FENCurrent = new FEN(argument);
                     SetFEN(argument);
                     break;
                 case "undo":
-                    /*_board.MoveUndo();*/
+
                     break;
                 case "remove":
-                    /*_board.MoveUndo();
-                    _board.MoveUndo();*/
+
                     break;
                 case "level":
-                    /*_timeControl = TimeControl.Parse(argument);*/
+
                     break;
                 case "analyze":
-                    /*_player.YourTurn(_board, new TimeControl(TimeSpan.FromDays(365), TimeSpan.FromDays(1), 0), TimeSpan.FromDays(365));*/
+
                     break;
                 case "exit":
-                    /*_player.TurnStop();*/
+
                     break;
                 //custom stuff for debugging
-                case "setpos1":
-                    /*_board.FENCurrent = new FEN("rr3bk1/pppq1p2/1nn1pB1p/3bP3/P2P1Q2/1P1B1P2/4N1PP/R4RK1 b - - 4 18 ");*/
-                    break;
-                case "eval":
-                    /*Evaluator eval = new Evaluator();
-                    int e = eval.EvalFor(_board, _board.WhosTurn);*/
+                case "setlopez":
+                    SetFEN("r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3");
                     break;
                 case "perft":
                     int perft = _ai.RunPerft(int.Parse(argument));
@@ -118,12 +106,11 @@ namespace ChessEngine.CommandLine
         private void StartThinking()
         {
             IMove move = _ai.GetBestMove();
-//            Move test = (Move) move;
-//            Program.Logger.WriteLine(test.origin + ":" + test.target);
             String algebraicMove = Encode(move);
             move.Execute();
             Board.Game.SwitchTurn();
-            Program.Logger.WriteLine("logic made move: " + algebraicMove + " after depth " + Logic.LastDepth);
+
+            Program.Logger.WriteLine("logic made move: " + algebraicMove);
             Console.WriteLine("move " + algebraicMove);
         }
 
@@ -134,15 +121,7 @@ namespace ChessEngine.CommandLine
             {
                 Move moving = (Move)move;
                 moveNotation += ChessConverter.AlgStrings[moving.Origin];
-//                if (moving.kill != null)
-//                {
-//                    moveNotation += "x";
-//                }
                 moveNotation += ChessConverter.AlgStrings[moving.Target];
-//                if (moving.IsCheck())
-//                {
-//                    moveNotation += "+";
-//                }
             }
             else if (move is Castling)
             {
@@ -181,31 +160,28 @@ namespace ChessEngine.CommandLine
             Board board = Board.Game;
             board.ResetGame();
             string[] info = fen.Split(new [] {'/', ' '});
-            for (int rank = 0; rank < 8; rank++)
+            for (int rank = 7; rank >= 0; rank--)
             {
-                Program.Logger.WriteLine(info[rank]);
                 int file = 0;
                 foreach (char piece in info[rank])
                 {
                     if (EmptyTiles.Contains(piece))
                     {
                         int e = (int) Char.GetNumericValue(piece);
-                        //Program.Logger.WriteLine("space of " + e);
                         for (int f = file; f < (e + file); f++)
                         {
-                            board.Tiles[16 * rank + f] = 0;
+                            board.Tiles[16 * (7 - rank) + f] = 0;
                         }
                         file += e;
                     }
                     else
                     {
-                        board.Tiles[16* rank + file] = ChessConverter.GetPiece(piece);
-                        //Program.Logger.WriteLine("at " + rank + " " + file + " equals " + (16 * rank + file) + " piece: " + ChessConverter.GetPiece(piece));
+                        board.Tiles[16 * (7 - rank) + file] = ChessConverter.GetPiece(piece);
                         file++;
                     }
                 }
             }
-            _ai.Turn = info[8];
+            board.SetTurn(info[8]);
             foreach (char c in info[9])
             {
                 if (c.Equals('-'))

@@ -284,11 +284,16 @@ namespace ChessEngine.Engine
         public string PrintBoard()
         {
             StringBuilder sb = new StringBuilder();
-            for (int h = 0; h < 8; h++)
+            for (int h = 7; h >= 0; h--)
             {
                 for (int w = 0; w < 8; w++)
                 {
-                    sb.Append(Tiles[16*h + w] + " ");
+                    int piece = Tiles[16*h + w];
+                    if (piece < 10)
+                    {
+                        sb.Append(" ");
+                    }
+                    sb.Append(piece + " ");
                 }
                 sb.Append("\n");
             }
@@ -321,6 +326,11 @@ namespace ChessEngine.Engine
             14, 10, 13, 15, 11, 13, 10, 14,     0, 0, 0, 0, 0, 0, 0, 0
 
         };
+
+        public void SetTurn(string s)
+        {
+            WhosTurn = s.Equals("w") ? (byte)0x00 : (byte)0x08;
+        }
     }
 }
 
